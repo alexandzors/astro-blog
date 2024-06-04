@@ -10,6 +10,8 @@ import partytown from '@astrojs/partytown';
 import icon from 'astro-icon';
 import compress from '@playform/compress';
 import astrowind from './vendor/integration';
+import remarkDirective from 'remark-directive';
+import remarkCustomBlock from './src/plugins/remarkCustomBlock';
 
 import {
   readingTimeRemarkPlugin,
@@ -79,7 +81,7 @@ export default defineConfig({
   },
 
   markdown: {
-    remarkPlugins: [readingTimeRemarkPlugin],
+    remarkPlugins: [readingTimeRemarkPlugin, remarkDirective, remarkCustomBlock],
     rehypePlugins: [responsiveTablesRehypePlugin, lazyImagesRehypePlugin],
   },
 

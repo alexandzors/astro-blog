@@ -1,0 +1,34 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const { type, children } = Astro.props;
+
+let icon;
+let className = 'prompt';
+
+switch (type) {
+  case 'info':
+    icon = 'tabler:info-circle';
+    className += ' prompt-info';
+    break;
+  case 'tip':
+    icon = 'tabler:lightbulb';
+    className += ' prompt-tip';
+    break;
+  case 'warn':
+    icon = 'tabler:alert-circle';
+    className += ' prompt-warn';
+    break;
+  case 'danger':
+    icon = 'tabler:alert-triangle';
+    className += ' prompt-danger';
+    break;
+  default:
+    icon = 'tabler:info-circle';
+    className += ' prompt-info';
+}
+
+<div class={className}>
+  <Icon name={icon} />
+  <p>{children}</p>
+</div>

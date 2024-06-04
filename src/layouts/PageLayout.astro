@@ -3,6 +3,7 @@ import Layout from '~/layouts/Layout.astro';
 import Header from '~/components/widgets/Header.astro';
 import Footer from '~/components/widgets/Footer.astro';
 import Announcement from '~/components/widgets/Announcement.astro';
+import MDXLayout from '~/components/MDXLayout.astro';
 
 import { headerData, footerData } from '~/navigation';
 
@@ -23,7 +24,9 @@ const { metadata } = Astro.props;
     <Header {...headerData} isSticky showRssFeed showToggleTheme />
   </slot>
   <main>
-    <slot />
+    <MDXLayout>
+      <slot />
+    </MDXLayout>
   </main>
   <slot name="footer">
     <Footer {...footerData} />

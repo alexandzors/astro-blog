@@ -1,10 +1,10 @@
 site:
-  name: AstroWind
-  site: 'https://astrowind.vercel.app'
+  name: Alex's Blog
+  site: 'https://blog.alexsguardian.net'
   base: '/'
   trailingSlash: false
 
-  googleSiteVerificationId: orcPxI47GSa-cRvY11tUe6iGg2IO_RPvnA1q95iEM3M
+  googleSiteVerificationId: 
 
 # Default SEO metadata
 metadata:
@@ -34,17 +34,17 @@ i18n:
 apps:
   blog:
     isEnabled: true
-    postsPerPage: 6
+    postsPerPage: 10
 
     post:
       isEnabled: true
-      permalink: '/%slug%' # Variables: %slug%, %year%, %month%, %day%, %hour%, %minute%, %second%, %category%
+      permalink: '%year%/%month%/%day%/%slug%' # Variables: %slug%, %year%, %month%, %day%, %hour%, %minute%, %second%, %category%
       robots:
         index: true
 
     list:
       isEnabled: true
-      pathname: 'blog' # Blog main path, you can change this to "articles" (/articles)
+      pathname: '' # Blog main path, you can change this to "articles" (/articles)
       robots:
         index: true
 
