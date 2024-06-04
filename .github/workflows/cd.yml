@@ -18,6 +18,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.12.1'
+          cache: 'npm'
       
       - name: Public IP
         id: ip
@@ -35,6 +36,7 @@ jobs:
           blog-url: '${{secrets.BLOGURL}}'
         run: |
           sed -i -e 's#${{env.blog-url}}#'${{ env.dev-url }}'#g' ./src/config.yaml
+          npm install
           npm run build
       
       - name: test production site
