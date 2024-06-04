@@ -10,7 +10,7 @@ site:
 metadata:
   title:
     default: Alex's Blog
-    template: '%s — Alex's Blog'
+    template: "%s — Alex's Blog"
   description: "A blog that follows Alex's homelab adventures and random tech things."
   robots:
     index: true
@@ -21,7 +21,7 @@ metadata:
       - url: '~/assets/images/default.png'
         width: 1200
         height: 628
-    type: website
+    type: blog
   twitter:
     handle: 
     site: 

@@ -34,7 +34,7 @@ jobs:
           dev-url: '${{secrets.DEVURL}}'
           blog-url: '${{secrets.BLOGURL}}'
         run: |
-          sed -i -e 's#${{env.blog-url}}#'${{ env.dev-url }}'#g' ./src/config.yml
+          sed -i -e 's#${{env.blog-url}}#'${{ env.dev-url }}'#g' ./src/config.yaml
           npm run build
       
       - name: test production site
@@ -67,7 +67,7 @@ jobs:
         with:
           switches: -avr
           path: ./dist/
-          remote_path: /opt/sites/astro-blog-test/
+          remote_path: /opt/sites/astro-blog/
           remote_host: ${{ secrets.LINODEHOST }}
           remote_port: 22
           remote_user: ${{ secrets.LINODEUSER }}
