@@ -9,23 +9,23 @@ site:
 # Default SEO metadata
 metadata:
   title:
-    default: AstroWind
-    template: '%s — AstroWind'
-  description: "\U0001F680 Suitable for Startups, Small Business, Sass Websites, Professional Portfolios, Marketing Websites, Landing Pages & Blogs."
+    default: Alex's Blog
+    template: '%s — Alex's Blog'
+  description: "A blog that follows Alex's homelab adventures and random tech things."
   robots:
     index: true
     follow: true
   openGraph:
-    site_name: AstroWind
+    site_name: Alex's Blog
     images:
       - url: '~/assets/images/default.png'
         width: 1200
         height: 628
     type: website
   twitter:
-    handle: '@onwidget'
-    site: '@onwidget'
-    cardType: summary_large_image
+    handle: 
+    site: 
+    cardType: 
 
 i18n:
   language: en
