@@ -155,6 +155,8 @@ pre code {
 	@apply block leading-tight;
 	counter-reset: step;
 	counter-increment: step 0;
+  border-left: solid 2px rgba(115, 138, 148, 0.4) !important;
+  padding-left: 4px !important;
 }
 
 pre code .line {
@@ -168,6 +170,6 @@ pre code .line::before {
   top:2px;
 	color: rgba(115, 138, 148, 0.4);
   font-size: 0.7rem;
-  border-right: solid 2px rgba(115, 138, 148, 0.4);
+  /* border-right: solid 2px rgba(115, 138, 148, 0.4); */
 }
 pre code .line:last-child::before{display: none;}
