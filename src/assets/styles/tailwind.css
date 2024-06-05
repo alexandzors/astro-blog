@@ -152,11 +152,11 @@
 
 /* pre {
 	@apply rounded-md pl-8;
-}
+} */
 
 pre code {
-	@apply block leading-tight p-2 pl-1;
-	border-left: 1px solid rgba(115, 138, 148, 0.4);
+	@apply block leading-tight;
+	/* border-left: 1px solid rgba(115, 138, 148, 0.4) !important; */
 	counter-reset: step;
 	counter-increment: step 0;
 }
@@ -166,11 +166,11 @@ pre code .line {
 }
 
 pre code .line::before {
-	@apply absolute overflow-hidden w-7 h-4 -left-9 top-0 text-right;
+	@apply absolute overflow-hidden w-7 h-4 -left-8 top-0 text-right pr-1;
 	content: counter(step);
 	counter-increment: step;
 	color: rgba(115, 138, 148, 0.4);
   font-size: 0.7rem;
-  border-right-width: 0.1rem;
-  border-right-color: rgba(115, 138, 148, 0.4);
-} */
+  border-right: solid 2px rgba(115, 138, 148, 0.4);
+}
+pre code .line:last-child::before{display: none;}
