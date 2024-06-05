@@ -162,9 +162,10 @@ pre code .line {
 }
 
 pre code .line::before {
-	@apply absolute overflow-hidden w-7 h-4 -left-8 top-0 text-right pr-1;
+	@apply absolute overflow-hidden w-7 h-4 -left-8 text-right pr-1 leading-4;
 	content: counter(step);
 	counter-increment: step;
+  top:2px;
 	color: rgba(115, 138, 148, 0.4);
   font-size: 0.7rem;
   border-right: solid 2px rgba(115, 138, 148, 0.4);
