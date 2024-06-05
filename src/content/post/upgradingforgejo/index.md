@@ -47,7 +47,6 @@ services:
     ports:
       - '3000:3000'
       - '222:22'
-      
 ```
 file="docker-compose.yml"
 

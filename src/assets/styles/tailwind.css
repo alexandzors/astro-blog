@@ -150,13 +150,9 @@
   background-color: var(--prompt-danger-bg);
 }
 
-/* pre {
-	@apply rounded-md pl-8;
-} */
-
+/* Code block extra styling */
 pre code {
 	@apply block leading-tight;
-	/* border-left: 1px solid rgba(115, 138, 148, 0.4) !important; */
 	counter-reset: step;
 	counter-increment: step 0;
 }
