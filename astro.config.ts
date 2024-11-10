@@ -28,7 +28,9 @@ export default defineConfig({
             plugins: [pluginLineNumbers()],
         },
         social: {
-            github: 'https://github.com/alexandzors',
+				blueSky: 'https://bsky.app/profile/alexandzors.bsky.social',
+				youtube: 'https://www.youtube.com/@alexandzors',
+            github: 'https://github.com/alexandzors'
         },
 		}), partytown({
 			// https://docs.astro.build/en/guides/integrations-guide/partytown/
