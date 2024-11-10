@@ -1,0 +1,251 @@
+---
+title: GitHub Actions - Automating your Docker Builds with Diun
+excerpt: Automate your docker builds using Diun
+date: 2022-06-20
+lastUpdated: 2022-06-20
+tags:
+  - TagName
+authors:
+  - name: Alex
+    title: Wizard
+    picture: https://avatars.githubusercontent.com/u/25626115?v=4
+    url: https://alexsguardian.net/
+featured: false
+draft: false
+---
+
+
+In my [previous post](https://blog.alexsguardian.net/posts/AutoGHActionsDocker/), we got our [GitHub Actions](https://github.com/features/actions) pipeline set up and built our first Docker container image based on [Caddy](https://caddyserver.com/). In this post, we will be covering the process of automating the pipeline based on upstream changes in the parent [Caddy](https://hub.docker.com/_/caddy) Docker image. For this we will be deploying a service called [Diun](https://crazymax.dev/diun/) on a local docker machine.
+
+## What is Diun?
+
+> **<u>D</u>**ocker **<u>I</u>**mage **<u>U</u>**pdate **<u>N</u>**otifier is a CLI application written in Go and is delivered as a single executable (and as a Docker image) to receive notifications when a Docker image is updated on a Docker registry.
+>
+>[https://crazymax.dev/diun/](https://crazymax.dev/diun/)
+
+Diun is a cool utility that watches a docker registry for updates and can run notifications based on them.
+
+
+# The Environment
+
+I will be running this series as if you were running on Windows 10/11 with [Visual Studio Code](https://code.visualstudio.com) installed. Now this series can also be followed fairly easily if you are running Linux setup or WSL. I am also assuming you have a general understanding of the command line interface. If you need more help, leave a comment below and I will reach out!
+
+## Pre-Requisites
+
+You should have these items created and set up before following this post.
+
+- Have a [Linux machine running Docker](https://docs.docker.com/engine/install/ubuntu/)
+- Have SSH access to the Docker machine
+- Have an SSH client installed or have OpenSSH client enabled if running on Windows 10/11.
+- Completed the [previous post](https://blog.alexsguardian.net/posts/AutoGHActionsDocker/).
+
+# Deploying Diun
+
+Before we deploy Diun we need to setup the directory for Diun to house configuration files in. SSH to your Docker machine and run the following commands:
+
+```shell
+mkdir ~/diun
+mkdir ~/diun/scripts
+mkdir ~/diun/data
+```
+{: .nolineno }
+
+Now create the following files:
+
+```shell
+cd ~/diun
+touch docker-compose.yml
+touch config.yml
+touch /scripts/caddy.sh
+touch /data/images.yml
+```
+{: .nolineno }
+
+Your directory should now look like this tree output:
+
+```shell
+diun
+├── scripts
+│   └── caddy.sh
+├── data
+│   └── images.yml
+├── config.yml
+└── docker-compose.yml
+```
+{: .nolineno }
+
+## Configuring Diun
+
+Now that we have our directory and file structure ready for Diun, we need to tell it what to do. First edit the `config.yml` file.
+
+```shell
+nano config.yml
+```
+{: .nolineno }
+
+Add the following info to the file:
+
+```yml
+#config.yml
+watch:
+  workers: 1
+  schedule: "0 */6 * * *"
+providers:
+  file:
+    filename: /data/images.yml
+notif:
+# Enable this if you would like to post update notifications to a discord channel via a webhook.
+#  discord:
+#    webhookURL: <https://discordwebhookurl.com>
+#    timeout: 10s
+  script:
+    cmd: "sh"
+    args: "/scripts/caddy.sh"
+```
+{: file="config.yml" }
+
+> You can change the schedule to whatever you'd like. However, I would not recommend going shorter than once a day.
+{: .prompt-tip }
+
+> You can find more configuration docs on the [Diun wiki](https://crazymax.dev/diun/config/).
+{: .prompt-info }
+
+`CTRL + X` then `Y` to save and close the file. Now lets edit the `images.yml` file.
+
+```shell
+nano /data/images.yml
+```
+{: .nolineno }
+
+Add the following info to the file:
+
+```yml
+#images.yml
+- name: docker.io/caddy:latest
+```
+{: .file="/data/images.yml" }
+
+`CTRL + X` then `Y` to save and close the file. Now edit the `caddy.sh` script file.
+
+```shell
+nano /scripts/caddy.sh
+```
+{: .nolineno }
+
+Copy the following info into the file. Make sure to edit the `<TOKEN>`, and `<git_repo>` (username/repo) portions.
+
+```sh
+#!/bin/bash
+#caddy.sh
+
+curl -H "Accept: application/vnd.github.v3+json" \
+    -H "Authorization: token <TOKEN>" \
+    --request POST \
+    --data '{"event_type": "caddy"}' \
+    https://api.github.com/repos/<git_repo>/dispatches
+```
+{: file="caddy.sh" }
+
+> You will need a [GitHub PAT](/posts/2022/06/12/AutoGHActionsDocker/#obtaining-an-access-token-for-docker-hub) with both `repo` and `workflows` scopes enabled for the `<TOKEN>` section of the script.
+{: .prompt-info }
+
+`CTRL + X` then `Y` to save and close the file. Finally edit the `docker-compose.yml` file.
+
+```shell
+nano docker-compose.yml
+```
+{: .nolineno }
+
+Copy the following info into the compose file.
+
+```yml
+#docker-compose.yml
+version: "3"
+services:
+  diun:
+    restart: always
+    image: crazymax/diun:latest
+    volumes:
+      - "/opt/docker/diun/data:/data"
+      - "/opt/docker/diun/scripts:/scripts:ro"
+      - "/opt/docker/diun/diun.yml:/config.yml:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - "TZ=America/New_York"
+      - "LOG_LEVEL=info"
+      - "LOG_JSON=false"
+```
+{: file="docker-compose.yml" }
+
+> Diun can be configured by environment variables instead of mounting host paths. See the [Diun wiki](https://crazymax.dev/diun/config/#environment-variables) for an example.
+{: .prompt-info }
+
+`CTRL + X` then `Y` to save and close the file.
+
+## Starting Diun
+
+Now that we have all of our config/script files configured we can start Diun. While in the `~/diun` directory, run:
+
+```shell
+docker compose up -d
+```
+{: .nolineno }
+
+> If you have an older version of docker compose installed, you may have to change the above command to `docker-compose`.
+{: .prompt-warn }
+
+> You can run `docker ps` to verify if Diun is running after the `docker compose` command completes.
+{: .prompt-tip }
+
+Now that Diun is running, we can test the script to make sure its able to fire off our Actions pipeline. To make sure Diun can access the script and run it, we need to exec into the Diun container.
+
+```shell
+docker exec -it diun-diun-1 /bin/sh
+```
+{: .nolineno }
+
+> _Note:_ If you are using an older version of Docker Compose you will need to change the container name to `diun_diun_1`.
+{: .prompt-tip }
+
+Once inside the container we can navigate to the `scripts` directory and run the `caddy.sh` script.
+
+```shell
+cd /scripts
+sh caddy.sh
+```
+{: .nolineno }
+
+> If you get an error stating that `curl` is not found (similar to this)
+> `Tue, 05 Apr 2022 06:00:01 EDT ERR Script notification failed error="/scripts/caddy.sh: line 3: curl: not found: exit status 127" image=docker.io/library/caddy:latest`
+> you can install it by running: `apk add curl --no-cache`. Once installed re-run the `sh caddy.sh` command. Every time the container gets updated you will have to re-add curl.
+{: .prompt-tip }
+
+After the script completes you can exit the container environment by typing `exit`. Next open your GitHub repository and navigate to the Actions tab. You should see a new active entry that was triggered by a repository dispatch. See below picture for an example of a completed action run by a repository dispatch.
+
+![Repository Dispatch Example](/src/assets/series/gh-actions/gh-actions-repo-dispatch.jpeg){: .shadow}
+
+With that, all we need to do now is wait until the Caddy base image updates! Here is what the container log looks like when Diun successfully initiates an update notification.
+
+```shell
+Fri, 06 May 2022 18:00:00 EDT INF Cron triggered
+Fri, 06 May 2022 18:00:00 EDT INF Found 1 image(s) to analyze provider=file
+Fri, 06 May 2022 18:00:01 EDT INF Image update found image=docker.io/library/caddy:latest provider=file
+Fri, 06 May 2022 18:00:02 EDT INF Jobs completed added=0 failed=0 skipped=0 unchanged=0 updated=1
+Fri, 06 May 2022 18:00:02 EDT INF Next run in 5 hours 59 minutes (2022-05-07 00:00:00 -0400 EDT)
+```
+{: .nolineno }
+
+The log output shows Diun found an image update for Caddy which fired off our notification setup. In my case it ran the script to update my image, as well as post a notification to my personal discord server:
+
+![Diun Discord Notification](/src/assets/series/gh-actions/gh-actions-discord-notif.png){: .shadow}
+
+Let me know down below if you run into any issues and stay tuned for Part 3!
+
+*Thanks to my good friend [Stefan](https://github.com/StefanMarAntonsson) for helping proof this post series!*
+----
+## Affiliate Links
+
+- [Linode](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5)💜
+- [Private Internet Access](https://www.privateinternetaccess.com/pages/buy-a-vpn/1218buyavpn?invite=U2FsdGVkX1-8fM3Tf_qW3eYYf6yVliXSmIZwo4nDBfM%2CYfeBrdg4n9UbF4jCvDzT83kfTKA)
+
+<sub>*FTC: Some links in this post are income generating.*</sub>

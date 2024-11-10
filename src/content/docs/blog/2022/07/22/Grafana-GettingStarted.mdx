@@ -1,0 +1,462 @@
+---
+title: Grafana - Getting Started
+excerpt: Getting started with Grafana
+date: 2022-07-22
+lastUpdated: 2022-07-22
+tags:
+  - TagName
+authors:
+  - name: Alex
+    title: Wizard
+    picture: https://avatars.githubusercontent.com/u/25626115?v=4
+    url: https://alexsguardian.net/
+featured: false
+draft: false
+---
+
+
+So you've seen a cool Dashboard on [/r/homelab](https://reddit.com/r/homelab) with graphs and status panels, and now you want one for your lab. Well let me tell you a little secret. It's actually really easy to set up! This guide series will walk you through how to set up [Grafana](https://grafana.com), [Prometheus](https://prometheus.io/docs/introduction/overview/), [InfluxDB](https://www.influxdata.com/get-influxdb/), [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/), and a few other data services that pair nicely in a homelab setting. This will be a "get your feet wet" guide series and will get you in the door of the fun world of metrics and monitoring. We will be starting from complete scratch, so to follow along make sure you read through the prerequisites below.
+
+# The Environment
+
+This guide series assumes you are on Windows 10 or 11 with [Windows Terminal](https://apps.microsoft.com/store/detail/windows-terminal/9N0DX20HK701?hl=en-us&gl=US), [Visual Studio Code](https://code.visualstudio.com), the [OpenSSH Client](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=gui) installed and to keep this guide easy to update in the future, that you already have a Ubuntu Server or similar Linux imaged system already running and ready. If you do not know how to install Ubuntu Server, check out [this guide from Ubuntu](https://ubuntu.com/tutorials/create-a-usb-stick-on-windows#1-overview).
+
+## Pre-Requisites
+
+- Have an x86 computing device (PC, Server, Workstation, Micro PC, etc.) with Ubuntu Server installed.
+  - You can use a Raspberry Pi or other ARM based device. Just make sure to change docker / compose commands to use built for ARM images instead.
+- Have an IDE / Text Editor installed on your pc.
+  - I recommend [Visual Studio Code](https://code.visualstudio.com/) with the [Remote SSH extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) installed.
+- Access to a good internet connection.
+- Have a spare monitor and keyboard handy.
+- Your favorite drink and snacks within reach. ( A must for hobbies )
+
+# Grafana
+
+If you are not familiar with Grafana, let me give you a quick run down on what it is and is not. Grafana is a data visualization tool that allows you to observe your data using charts, graphs, etc. It is not a replacement for things like [Homer](https://github.com/bastienwirtz/homer) / [Dashy](https://github.com/Lissy93/dashy) or other similar dashboard software. Basically if you are wanting to monitor service metrics / logs then Grafana is for you.
+
+> This guide series was originally created with Grafana version 9!
+{: .prompt-warning }
+
+
+## Connecting to the Machine
+
+First thing we need to do is hook up Visual Studio Code (VSC) to the machine we will be running Grafana, etc. on. For this we will be using the Remote - SSH extension for VSC. ( If you don't have the extension installed yet, go ahead and install it. )
+
+1. Open File Explorer and navigate to `C:\Users\<username>\.ssh`{: .filepath }
+2. Right click and select "New > Text Document"
+3. Name the new file `vsc_config` and remove the `.txt` extension.
+
+    > I like to keep SSH hosts for VSC separate from my main config file. You do not have to do this if you want to use the default `config` file for SSH. 
+    {: .prompt-info }
+
+4. Open Visual Studio Code and click on Extensions in the navigation column on the left. 
+5. Under "Installed Extensions" find "Remote - SSH" and click on the settings gear then extension setting.
+6. In the field labeled "Remote.SSH: Config File" add the location of your SSH config file.
+  - If you created the file above it will be `C:\Users\<username>\.ssh\vsc_config`{: .filepath }
+  - If you are using your default ssh config file then the path will be `C:\Users\<username>\.ssh\config`{: .filepath }
+7. Close the settings Window
+8. Click on the green icon in the lower left 
+9. In the dropdown at the top click on "Connect Current Window to Host..."
+10. Click on "+ Add New SSH Host..."
+11. Enter your connection string for the Grafana host machine.
+  - e.g. `username@192.168.10.1`
+12. Hit Enter
+13. Select your SSH config file from the drop-down
+14. Click Connect in the popup notification in the lower right
+15. In the new VSC window select "Linux" from the dropdown
+16. If you did not include an identity file in your connection string, enter your password in the prompt.
+17. Hit Enter to connect to the machine
+
+> VSC will set up code server on your machine on first log in. The progress will be displayed in a notification in the lower right. When this is complete you can start using VSC to navigate and edit files on your System. As long as you have the correct permissions.
+{: .prompt-info }
+
+![Setting up Remote SSH](/src/assets/series/grafana-guide/grafana-setup_remote_SSH.webp){: .shadow }
+_Setting up the Remote SSH extension for VSC_
+
+## Installing Docker
+
+> To make this guide easy we will be using Docker to run our services with Grafana. This will make it easy to add / remove services without bloating the host OS with dependencies.
+{: .prompt-info }
+
+Docker has an excellent [documentation site](https://docs.docker.com) that includes [Docker Engine installation](https://docs.docker.com/engine/install/) steps that are kept up to date. So check there if you run into any issues with the steps below.
+{: .prompt-tip }
+
+To install Docker we first need to add the apt repository for it to Ubuntu's apt repository index. Run the following commands to install the prerequisites. You can run these commands in the terminal inside VSC since we are connected to our machine over SSH. If the terminal is not showing you can open by clicking on "Terminal" and then "New Terminal" in the toolbar.
+
+```shell
+# Update the apt index
+sudo apt update
+
+# Install pre-requisites for apt to use HTTPS repositories (These are most likely already installed)
+sudo apt install \
+  ca-certificates \
+  curl \
+  gnupg \
+  lsb-release
+```
+{: .nolineno }
+
+Now we need to add Docker's official GPG key:
+
+```shell
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+```
+{: .nolineno }
+
+Next add the official repository for Docker:
+
+```shell
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+{: .nolineno }
+
+Once the repository is added, we can install the Docker Engine and Docker Compose:
+
+```shell
+sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+```
+{: .nolineno }
+
+After Docker installs we can add our user to the Docker group, so we don't have to use `sudo` before every Docker command.
+
+```shell
+sudo usermod -aG docker yourusername
+```
+{: .nolineno }
+
+> It is usually recommended that you log out of your session and log back in to make sure your user was properly updated. To do this via the Remote - SSH plugin, click on the green button in the lower left and then click "Close Remote Connection." You can then use the same flow from the steps above to log back into the machine via VSC.
+{: .prompt-info }
+
+![Docker Setup](/src/assets/series/grafana-guide/grafana-Docker-Setup.webp)
+
+We can check if Docker Engine and Docker Compose were installed properly by running their version commands.
+
+```shell
+docker version
+docker compose version
+```
+{: .nolineno }
+
+You should see an output similar to the image below.
+
+![Docker Engine / Compose Version](/src/assets/series/grafana-guide/grafana-Docker_EngComp_Version.jpg){: .shadow }
+_Output examples of `docker version` and `docker compose version`_
+
+While we are working on Docker, let's update the logging driver to keep our log files from getting huge. Doing this now means we do not have to define it ourselves in the compose files later. To do this we need to edit the `daemon.json` file located in `/etc/docker/`. You will need to run this command from a terminal session (can be inside VSC's terminal).
+
+```shell
+sudo nano /etc/docker/daemon.json
+```
+{: .nolineno }
+
+Then copy the following JSON configuration into the file.
+
+```json
+{
+  "log-driver": "json-file",
+  "log-level": "",
+  "log-opts": {
+    "cache-disabled": "false",
+    "cache-max-file": "5",
+    "cache-max-size": "20m",
+    "cache-compress": "true",
+    "max-file": "2",
+    "max-size": "10m"
+  }
+}
+```
+{: .file="daemon.json"}
+
+> You can edit the values as you need, to fit your environment. Sizes are in Megabytes. (10m - 10MB)
+{: .prompt-tip }
+
+Save and close the file by hitting `CTRL+X` then `y`. Then restart docker for the changes take effect. 
+
+```shell
+sudo systemctl restart docker
+```
+
+## File and Directory Structure Setup
+
+So now with VSC setup and connected to our host machine with Docker installed, we can set up our file and directory structure for Grafana and our other services. I like to store persistent container volumes in `/opt/docker`{: .filepath } but you can pretty much store them anywhere you'd like. To create the directory for Grafana run the following commands:
+
+```shell
+sudo mkdir /opt/docker/
+# Give your user ownership of the directory so you do not need to prefix sudo to every command
+sudo chown yourusername:yourusername /opt/docker
+cd /opt/docker
+mkdir grafana
+```
+{: .nolineno }
+
+Now let's create the `docker-compose.yml` file for Grafana.
+
+```shell
+cd grafana
+touch docker-compose.yml
+```
+{: .nolineno }
+
+Then open it in VSC by using the `code` command.
+
+```shell
+code docker-compose.yml
+```
+{: .nolineno }
+
+> If you get a "Do you trust the authors of these files?" prompt, like the example below. Just click on "Open" to continue.
+>
+> ![VSC Restricted Mode](/src/assets/series/grafana-guide/grafana-vsc_restricted_mode.jpg){: .shadow }
+{: .prompt-tip }
+
+Here is an example of a Grafana `docker-compose.yml` file. Make sure to edit it for your environment if you changed where the files will be stored.
+
+```yml
+version: '3'
+services:
+  grafana:
+    restart: unless-stopped
+    image: grafana/grafana-oss:latest
+    user: "1000"
+    volumes:
+      - /opt/docker/grafana:/var/lib/grafana
+    ports:
+      - 3000:3000
+    environment:
+#     Temporary Password for the default grafana user account
+      - "GF_SECURITY_ADMIN_PASSWORD=admin"
+#     List of plugins to install when the container is deployed. Pulled from Grafana's plugin repository.
+      - "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel,grafana-worldmap-panel"
+```
+{: .file="docker-compose.yml" }
+
+> Make sure to change the `user: "1000"` line to match the user you want Grafana to run as. By default, Grafana runs as user id `472`. To get your ID you can run the command `id` .
+{: .prompt-warning }
+
+Save the file using `CTRL+S`. You can close it by clicking the `X` next to the name in the tab bar.
+
+## Deploying Grafana
+
+To deploy Grafana all we have to do is run the following command while in the `/opt/docker/grafana`{: .filepath } directory.
+
+```shell
+docker compose up -d
+```
+{: .nolineno }
+
+> If you are using a pre-existing Docker setup you might have to change the compose command to the older style `docker-compose`. The new plugin method adds compose as a sub command to Docker. If you have been following this post all the way through then you can ignore this.
+{: .prompt-tip }
+
+Once it is running, open a web browser and navigate to http://your-docker-machine-ip:3000. If the container is running properly you should see the Grafana login page.
+
+![Grafana Login](/src/assets/series/grafana-guide/grafana-login_screen.jpg){: .shadow }
+
+Log in to Grafana using the default username `admin` and the password you set in your `docker-compose.yml` file. It will ask you to change your password. Follow the prompts to do so.
+
+> **Coffee Break!**
+>
+> Now that we have Grafana configured, deployed, and have the default password changed, it's time for a quick break. Go stretch your legs, grab your preferred snack and drink before we continue.
+{: .prompt-tip }
+
+# Prometheus
+
+Our first data source we will be using is [Prometheus](https://prometheus.io/). If you are not familiar with Prometheus, their [docs site](https://prometheus.io/docs/introduction/overview/) is a pretty good overview of what Prometheus is and its main features. The basic run down on how Prometheus works and collects data can be summed up in a quick directional chart:
+
+[Push Jobs](https://prometheus.io/docs/instrumenting/pushing/) / [Data Exporters](https://prometheus.io/docs/instrumenting/writing_exporters/) → Prometheus → PromQL / Alert Manager API → Grafana
+
+Prometheus scrapes data from Exporters or has data pushed to it over HTTP. Prometheus then stores this data with timestamps and labels for retrieval. You can retrieve this data either via [Alert Manager](https://prometheus.io/docs/alerting/latest/alertmanager/) (which can fire off email alerts) or via [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) ( which can be used to display data in dashboards like Grafana ).
+
+We will be deploying Prometheus and the official Node Exporter to export our host metrics.
+
+## Directory and Config Setup
+
+First we need to setup a directory for Prometheus to store config data.
+
+```shell
+cd /opt/docker
+mkdir prometheus
+cd /prometheus
+```
+{: .nolineno }
+
+Now let's create the `prometheus.yml` config file, so we can mount it to the Docker container.
+
+```shell
+touch prometheus.yml
+```
+{: .nolineno }
+
+Next create the `docker-compose.yml` file for Prometheus and then edit it.
+
+```shell
+touch docker-compose.yml
+code docker-compose.yml
+```
+{: .nolineno }
+
+> If you get a "Do you trust the authors of these files?" prompt, like the example below. Just click on "Open" to continue.
+>
+> ![VSC Restricted Mode](/src/assets/series/grafana-guide/grafana-vsc_restricted_mode.jpg){: .shadow }
+{: .prompt-tip }
+
+Copy the following into your compose file:
+
+```yml
+version: '3'
+services:
+  prometheus:
+    restart: unless-stopped
+    image: prom/prometheus
+    volumes:
+      - /opt/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - 3090:9090
+```
+{: .file="docker-compose.yml" }
+
+Save the file using `CTRL+S`. You can close it by clicking the `X` next to the name in the tab bar.
+
+## Deploying Node Exporter
+
+Since we are deploying Node Exporter as another Docker container, we need to create the compose file for it. So let's make a new directory in `/opt/docker/prometheus`{: .filepath } to house it.
+
+```shell
+mkdir exporters
+cd exporters
+```
+{: .nolineno }
+
+Next create the `docker-compose.yml` file and edit it.
+
+```shell
+touch node-exporter.yml
+code node-exporter.yml
+```
+{: .nolineno }
+
+Copy the following into the `node-exporter.yml` file:
+
+```yml
+version: '3'
+services:
+  node_exporter:
+    restart: unless-stopped
+    image: quay.io/prometheus/node-exporter:latest
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+```
+{: .file="docker-compose.yml" }
+
+Save the file using `CTRL+S`. You can close it by clicking the `X` next to the name in the tab bar. Now deploy Node Exporter:
+
+```shell
+docker compose -f node-exporter.yml up -d
+```
+
+> Notice the `-f node-exporter.yml` parameter. This allows you to specify compose files that are in a different directory or non-standard named ones.
+{: .prompt-tip }
+
+To verify that it's working you can run:
+
+```shell
+curl localhost:9100/metrics
+```
+
+You should see an output like the following:
+
+```
+
+## Configuring Prometheus to Scrape Node Exporter
+
+Now that we have Node Exporter running we can update Prometheus to scrape it for data. Edit the `prometheus.yml` file with the following:
+
+```shell
+cd ..
+code prometheus.yml
+```
+{: .nolineno }
+
+Copy the following into the Prometheus config file.
+```yml
+# Set global scrape interval (how long between prometheus data scrapes on exporters)
+global:
+  scrape_interval: 15s
+
+# Define the scrape job(s)
+scrape_configs:
+- job_name: node
+  static_configs:
+  - targets: ['<your-machine-ip>:9100']
+```
+{: .file="prometheus.yml"}
+
+Replace `<your-machine-ip>` with the IP of your Docker host. Then save the file using `CTRL+S`. You can close it by clicking the `X` next to the name in the tab bar.
+
+## Deploying Prometheus
+
+To deploy Prometheus, run the following command inside the `/opt/docker/prometheus` directory.
+
+```shell
+docker compose up -d
+```
+
+Once deployed, open a browser tab and navigate to `http://your-docker-machine-ip:9090/graph`. When Prometheus's query UI loads run the following in the Expression box.
+
+```
+rate(node_cpu_seconds_total{mode="system"}[1m])
+```
+{: .nolineno }
+
+You should see an output similar to the one pictured below.
+
+![Prometheus Graph UI](/src/assets/series/grafana-guide/grafana-prometheus-ui.jpg)
+
+# Configuring Grafana to Use Prometheus
+
+With Prometheus running and scraping metrics from our Node Exporter, we can now configure Grafana to read that data and display it in a dashboard. So first login to Grafana, then follow the steps below to set up the Prometheus data source and configure the dashboard.
+
+1. Click on the Settings cog
+2. Click "Data sources"
+    ![Add Prometheus 1](/src/assets/series/grafana-guide/grafana-add_prometheus_1.jpg){: .shadow }
+3. Click the "Add data source" button
+    ![Add Prometheus 2](/src/assets/series/grafana-guide/grafana-add_prometheus_2.jpg){: .shadow }
+4. Click on "Prometheus" from the list of options
+    ![Add Prometheus 3](/src/assets/series/grafana-guide/grafana-add_prometheus_3.jpg){: .shadow }
+5. Fill out the following info:
+    a. Name your data source (default is Prometheus)
+    b. Enter `http://your-machine-ip:9090` for the URL
+    c. Click Save & test
+    ![Add Prometheus 4](/src/assets/series/grafana-guide/grafana-add_prometheus_4.jpg){: .shadow }
+6. After you click "Save & test" you should see a green check mark notification tell you the data source is working.
+    ![Add Prometheus 5](/src/assets/series/grafana-guide/grafana-add_prometheus_5.jpg){: .shadow }
+7. Click the Dashboard button in the left-hand menu
+    ![Add Prometheus 6](/src/assets/series/grafana-guide/grafana-add_prometheus_6.jpg){: .shadow }
+8. Click on "Import"
+    ![Add Prometheus 7](/src/assets/series/grafana-guide/grafana-add_prometheus_7.jpg){: .shadow }
+9. Importing the Dashboard
+    a. Enter `1860` into the "Import via grafana.com" box
+    b. Click Load
+    ![Add Prometheus 8](/src/assets/series/grafana-guide/grafana-add_prometheus_8.jpg){: .shadow }
+    c. Edit the name of your Dashboard (what will be displayed)
+    d. Select "Prometheus (default)" from the dropdown
+    e. Click Import
+    ![Add Prometheus 9](/src/assets/series/grafana-guide/grafana-add_prometheus_9.jpg){: .shadow }
+
+After you click Import, you will be taken to your new dashboard! You can now explore the dashboard, as well as the queries each panel is making to Prometheus.
+
+![Node Exporter Dashboard](/src/assets/series/grafana-guide/grafana-node_exporter_dash.jpg)
+
+# Conclusion
+
+In an effort to keep this guide series easy to follow, I have broken it up into a series of posts. This is just part 1! The [next part](/posts/2022/09/17/Grafana-InfluxDB) we will be covering InfluxDB and Telegraf. As always if you run into any issues let me know down below or reach out via email!
+
+*Thanks to my good friend [Stefan](https://github.com/StefanMarAntonsson) for helping proof this post!*
