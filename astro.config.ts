@@ -9,7 +9,16 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: "Alex's Blog",
-			plugins: [starlightBlog()],
+			plugins: [starlightBlog({
+				authors: {
+				  alex: {
+					name: 'Alex',
+					title: 'Wizard',
+					picture: '/profile_alex.jpg', // Images in the `public` directory are supported.
+					url: 'https://alexsguardian.net/',
+				  },
+				},
+			  })],
 			customCss: ['./src/blog-styles.css'],
 			expressiveCode: {
 				/* https://expressive-code.com/guides/themes/ */
@@ -17,11 +26,9 @@ export default defineConfig({
 				// @ts-ignore
 				plugins: [pluginLineNumbers()],
 			},
-			/* social: {
-				github: '',
-				twitter: '',
-				youtube: ''
-			}, */
+			social: {
+				github: 'https://github.com/alexandzors',
+			},
 		}),
 	],
 });
