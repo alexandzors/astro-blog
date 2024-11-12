@@ -11,6 +11,7 @@ export default defineConfig({
     integrations: [starlight({
         title: "Alex's Blog",
         plugins: [starlightBlog({
+          prefix: 'posts',
             authors: {
               alex: {
                 name: 'Alex',
