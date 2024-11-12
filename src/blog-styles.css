@@ -1,0 +1,11 @@
+.preview{
+    padding: 1rem;
+    border: solid 2px hsl(224, 100%, 85%);
+    border-radius: 1rem;
+}
+.preview footer{
+    display: none;
+}
+.preview h2{
+    font-size: 1.6rem;
+}
