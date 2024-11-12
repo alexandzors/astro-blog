@@ -18,3 +18,5 @@ Hard to see where one post ends and the next begins, visually in the blog list
 Look into Astro redirect
 
 Share post links for the blog posts, like share on fb, twitter, etc.
+
+Feature: text under image in post
