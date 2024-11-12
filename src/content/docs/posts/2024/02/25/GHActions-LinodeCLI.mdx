@@ -4,24 +4,36 @@ excerpt: Updating Linode Cloud Firewall rules during workflow runs in GitHub Act
 date: 2024-02-25
 lastUpdated: 2024-02-25
 tags:
-  - TagName
+  - github
+  - github actions
+  - automation
+  - linode
+  - linode cli
+  - firewall
+  - git
+  - ci/cd
 authors:
-  - name: Alex
-    title: Wizard
-    picture: https://avatars.githubusercontent.com/u/25626115?v=4
-    url: https://alexsguardian.net/
+  - alex
 featured: false
+cover:
+  alt: Image displaying the GitHub Actions logo.
+  image: /public/covers/2022/gh-actions_banner.webp
 draft: false
 ---
 
+import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
 
-###### *FTC: Some links in this post are income earning affiliate links.*
+<sub>*FTC: Some links in this post may be income earning affiliate links.*</sub>
+<br />
+---
+
+<div style="display: flex; justify-content: center;"><a href="#linode-cli"> > Skip to the goods < </a></div>
 
 In my ever-increasing push to lock down my Virtual Machines (VMs) in [Linode](https://www.linode.com/) (*[ref link](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5) = $100 credit when you activate a payment method!*), I have started using the [Cloud Firewall](https://www.linode.com/products/cloud-firewall/) more to limit connections to them. It's basically like your local network Router's firewall but runs in the Cloud.
 
-Currently, I have port 22 (SSH) limited to my home WAN IP. This makes it hard to automate the deployment of my blog from GitHub without having to manually update the rules to all ipv4 traffic on port 22 before I run my workflows. A few of them are automated to update dependencies and fail if the rules are not updated in time. I do not like failed run  email spam, so I decided to finally automate it.
+Currently, I have port 22 (SSH) limited to my home WAN IP. This makes it hard to automate the deployment of my blog from GitHub without having to manually update the rules to all ipv4 traffic on port 22 before I run my workflows. A few of them are automated to update dependencies and fail if the rules are not updated in time. I do not like failed run email spam, so I decided to finally automate it.
 
-![Giphy Gif](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGQ5a3BnM3A4Z2cyb296Ynk2NGQ2MTU4eWFlZjR3aWdybXRydTVncCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l1KtYG8BndKBmWrM4/giphy.gif)
+<center>![Giphy Gif](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGQ5a3BnM3A4Z2cyb296Ynk2NGQ2MTU4eWFlZjR3aWdybXRydTVncCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l1KtYG8BndKBmWrM4/giphy.gif)</center>
 
 ## Linode CLI
 

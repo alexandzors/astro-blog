@@ -4,23 +4,27 @@ excerpt: Deploying Caddy with Cloudflare Tunnel, in Docker, to serve your local 
 date: 2023-12-04
 lastUpdated: 2023-12-04
 tags:
-  - TagName
+  - caddy
+  - cloudflare
+  - docker
 authors:
-  - name: Alex
-    title: Wizard
-    picture: https://avatars.githubusercontent.com/u/25626115?v=4
-    url: https://alexsguardian.net/
+  - alex
 featured: false
+cover:
+  alt: Image depicting the Caddy logo on a technical wiring background.
+  image: /public/covers/2023/caddy-series_banner.webp
 draft: false
 ---
 
+import { FileTree, Steps, Tabs, TabItem, Aside, Card } from "@astrojs/starlight/components"
 
-###### *FTC: Some links in this post are income earning affiliate links.*
+<sub>*FTC: Some links in this post may be income earning affiliate links.*</sub>
+<br />
+---
 
 ## Introduction
 
-> Exposing internal services to the internet comes with its own risks. It is highly recommended that you secure your web server host as much as possible and only expose services that are absolutely necessary! This guide will be getting your feet wet with some good default settings, but I also recommend you do your own research into these topics.
-{: .prompt-warning }
+<Aside type="caution">Exposing internal services to the internet comes with its own risks. It is highly recommended that you secure your web server host as much as possible and only expose services that are absolutely necessary! This guide will be getting your feet wet with some good default settings, but I also recommend you do your own research into these topics.</Aside>
 
 Ever wondered how to expose your home network services securely? It's the classic tech puzzler. You could use a VPN[^1] to tunnel into your network, but that requires you to have the connection enabled and running. You could also use an SSH Tunnel[^2] or a bastion server[^3]. Though, this requires your remote device to have the ability to SSH. Now there is another way: Reverse Proxy[^4]! A reverse proxy sits in front of your backend services and forwards incoming web requests to them. This can also help increase security, since you are not exposing the service directly. Now the downside is that you still have to forward ports 80/443 (HTTP/HTTPS) through your firewall. However, this can potentially leave your network vulnerable to port attacks. This can be mitigated with [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/).
 
@@ -44,50 +48,47 @@ Listed on the [Guides'](/guides) page as well.
 
 The first few things we need to tackle are getting a domain registered and our host setup with Docker. After that we can start setting up services, Caddy, and Cloudflare Tunnels. We are going to start off with registering the domain. Now, I highly recommend using Cloudflare for this as it will make it extremely easy to set up the tunnel later. 
 
-> There are other registrars[^6] you can use if you want, though I will not be covering configs for them in this series.
-{: .prompt-info }
+<Aside type="tip">There are other registrars[^6] you can use if you want, though I will not be covering configs for them in this series.</Aside>
 
 In order to register a new domain with Cloudflare. You first need to create an account. Head over to their site, [here](https://dash.cloudflare.com/sign-up), and follow the account creation process for a free account.
 
-![Cloudflare Sign up Page](/src/assets/series/caddy/p1/caddy_cf_signup.webp){: .shadow }
+![Cloudflare Sign up Page](/src/assets/posts_images/2023/12/04/caddy_cf_signup.webp)
 _Cloudflare Sign up Page_
 
 Once you are set up with an account, [sign in](https://dash.cloudflare.com/login?lang=en-US) and head to the billing > payment info section of your profile. Fill in your payment method and a billing address. 
 
-![Cloudflare Billing Info](/src/assets/series/caddy/p1/caddy_cf_billing.webp){: .shadow }
+![Cloudflare Billing Info](/src/assets/posts_images/2023/12/04/caddy_cf_billing.webp)
 _Cloudflare Billing Info_
 
 Then head back to the dashboard and enter the domain registration page.
 
-![Cloudflare Domain Registering Menu](/src/assets/series/caddy/p1/caddy_cf_dash.webp){: .shadow }
+![Cloudflare Domain Registering Menu](/src/assets/posts_images/2023/12/04/caddy_cf_dash.webp)
 _Cloudflare Domain Registering Menu_
 
 On the Register Domain page, search for a domain you'd like to use. When you find one, click on the "Purchase" link and check out. Follow the checkout process. 
 
-![Cloudflare Domain Registering](/src/assets/series/caddy/p1/caddy_cf_register-domain.webp){: .shadow }
+![Cloudflare Domain Registering](/src/assets/posts_images/2023/12/04/caddy_cf_register-domain.webp)
 _Cloudflare Domain Registering_
 
 Once you have registered your domain you should see it on the dashboard with a green checkmark and "Active" listed under it.
 
-![Cloudflare Domain Active](/src/assets/series/caddy/p1/caddy_cf_active_domain.webp){: .shadow }
+![Cloudflare Domain Active](/src/assets/posts_images/2023/12/04/caddy_cf_active_domain.webp)
 _An active domain in Cloudflare_
 
 Now that we have our domain registered, let's get the host prepared!
 
-> Before continuing, I recommend going into your Cloudflare account settings and setting up 2FA/MFA so that your account is secure. I personally use a [Yubikey](https://amzn.to/3QWoyKT), [USB-A version](https://amzn.to/49AK3rX), for stuff like this.
-{: .prompt-tip }
+<Aside type="tip">Before continuing, I recommend going into your Cloudflare account settings and setting up 2FA/MFA so that your account is secure. I personally use a [Yubikey](https://amzn.to/3QWoyKT), [USB-A version](https://amzn.to/49AK3rX), for stuff like this.</Aside>
 
 ## Preparing the Host
 
 Like I stated earlier, we will be using [Docker](https://docker.com) to run all our services. Docker makes it easy to spin up services in containers which can include all the dependencies. This makes it extremely easy to also blow away a service if you want to start fresh or don't need it anymore. It also adds a layer of separation from the host which can enhance host security a bit.
 
-> Wikipedia: What is Docker?
->> "<u>Docker</u> is a set of platform as a service (PaaS) products that use OS-level virtualization to deliver software in packages called <u>containers</u>. The service has both free and premium tiers. The software that hosts the containers is called <u>Docker Engine</u>."
->
->[https://en.wikipedia.org/wiki/Docker_(software)](https://en.wikipedia.org/wiki/Docker_(software))
-{: .prompt-info }
+<Card title="Wikipedia: What is Docker?">
+  <u>Docker</u> is a set of platform as a service (PaaS) products that use OS-level virtualization to deliver software in packages called <u>containers</u>. The service has both free and premium tiers. The software that hosts the containers is called <u>Docker Engine</u>.
+  [https://en.wikipedia.org/wiki/Docker_(software)](https://en.wikipedia.org/wiki/Docker_(software))
+</Card>
 
-SSH into your host and install Docker.
+Now ssh to your host and install Docker.
 
 ```shell
 ssh youruser@host
@@ -104,41 +105,42 @@ echo \
   "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
-{: .nolineno }
+
+<Card title="Wikipedia: What is Docker?">
+  <u>Docker</u> is a set of platform as a service (PaaS) products that use OS-level virtualization to deliver software in packages called <u>containers</u>. The service has both free and premium tiers. The software that hosts the containers is called <u>Docker Engine</u>.
+  [https://en.wikipedia.org/wiki/Docker_(software)](https://en.wikipedia.org/wiki/Docker_(software))
+</Card>
 
 Now update the apt sources and install Docker-CE
 
 ```shell
 sudo apt update
-
 # Install Docker
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
-{: .nolineno }
 
-![Installing Docker GIF](/src/assets/series/caddy/p1/caddy_docker-install.webp){: .shadow }
+![Installing Docker GIF](/src/assets/posts_images/2023/12/04/caddy_docker-install.webp)
 _Installing Docker_
 
 
 Now, I like to create a dedicated user to run containers in my lab. This is not a recommended method and is optional since it can be dangerous, unless you run Docker root-less as noted in the [docs](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user). This guide will not be covering how to do a root-less docker user, but it is definitely the recommended route. It does come with some limitations as noted [here](https://docs.docker.com/engine/security/rootless/#known-limitations) though. For the time being we are going to add our current user to the docker group, so we can omit `sudo` in every command from here on out.
 
-> >"For the time being we are going to add our current user to the docker group, so we can omit `sudo` in every command from here on out."
->
-> **<u>DO NOT</u> do this in a production type environment or one that has sensitive data stored on the host.... please...** 
-{: .prompt-danger }
+<Aside type="danger">
+  For the time being we are going to add our current user to the docker group, so we can omit `sudo` in every command from here on out.
+  **<u>DO NOT</u> do this in a production type environment or one that has sensitive data stored on the host.... please...**
+</Aside>
 
 ```shell
 sudo groupadd docker
 sudo usermod -aG docker $USER
 ```
-{: .nolineno }
 
-![Add user to Docker group](/src/assets/series/caddy/p1/caddy_docker_grpadd.webp){: .shadow }
+![Add user to Docker group](/src/assets/posts_images/2023/12/04/caddy_docker_grpadd.webp)
 _Adding the current user to the Docker group_
 
 Logout and log back into the host for the changes to take effect or run `newgrp docker`. You can then run `docker` to view the command help, to see if everything is working correctly.
 
-![Docker command help](/src/assets/series/caddy/p1/caddy_dockercmd_help.webp){: .shadow }
+![Docker command help](/src/assets/posts_images/2023/12/04/caddy_dockercmd_help.webp)
 _Help output from running `docker` with no parameters_
 
 Next we need to create the network that we will use for communications between Cloudflare tunnel and Caddy.
@@ -146,7 +148,6 @@ Next we need to create the network that we will use for communications between C
 ```shell
 docker network create cf-internal-net
 ```
-{: .nolineno }
 
 ### Preparing for Caddy
 
@@ -158,9 +159,8 @@ Create the config directories and files for Caddy.
 mkdir ~/caddy ~/caddy/.data ~/caddy/configs ~/cloudflare
 touch ~/caddy/Caddyfile ~/caddy/configs/cloudflare-tls ~/caddy/configs/cloudflare-clientip-map ~/caddy/cf.sh ~/caddy/reload.sh ~/caddy/caddy.yml
 ```
-{: .nolineno }
 
-![New Docker network and config directories](/src/assets/series/caddy/p1/caddy_dockernet-dir.webp){: .shadow }
+![New Docker network and config directories](/src/assets/posts_images/2023/12/04/caddy_dockernet-dir.webp)
 _New Docker network and config directories_
 
 Change directory to the new Caddy directory we created above and edit the file called `caddy.yml`.
@@ -170,11 +170,10 @@ cd ~/caddy
 
 nano caddy.yml
 ```
-{: .nolineno }
 
 Next copy and paste the following into the new file.
 
-```yaml
+```yaml title="caddy.yml"
 version: '3'
 services:
   server:
@@ -196,11 +195,10 @@ networks:
     name: cf-internal-net
     external: true
 ```
-{: file="caddy.yml" }
 
 Hit `CTRL + X` then `Y` to save and close the file. This will be the compose file for deploying Caddy. Next do the same for both `reload.sh` and `cf.sh`
 
-```shell
+```shell title="reload.sh"
 #!/bin/sh
 # This script runs caddy reload, caddy validate, caddy fmt, and caddy version inside the container via docker exec.
 # Usage:
@@ -231,12 +229,13 @@ while getopts ":r:v:f:V" option; do
   esac
 done
 ```
-{: file="reload.sh"}
 
-> I have a new file I am working on that will eventually replace `reload.sh`, but it's still being tested. If you'd like this new file to help test, [let me know](javascript:location.href%20=%20'mailto:'%20+%20['blog','alexsguardian.net'].join('@'))!
-{: .prompt-info }
 
-```shell
+<Aside type="note">
+  I have a new file I am working on that will eventually replace `reload.sh`, but it's still being tested. If you'd like this new file to help test, [let me know](javascript:location.href%20=%20'mailto:'%20+%20['blog','alexsguardian.net'].join('@'))!
+</Aside>
+
+```shell title="cf.sh"
 #!/usr/bin/env sh
 # This script queries cloudflare's website and pulls the list of IPv4 addresses. They are then loaded into a file to be used by Caddy.
 # These IPs can be used for setting up trusted proxy configurations in web servers.
@@ -259,21 +258,18 @@ awk -v d=" " '{s=(NR==1?s:s d)$0}END{print "trusted_proxies "s}' "$tmp_file" > "
 # Clean up
 rm -f "$tmp_file"
 ```
-{: file="cf.sh"}
 
 After saving `cf.sh` edit your cron schedules and add the following schedule.
 
 ```shell
 crontab -e
 ```
-{: .nolineno }
 
 After selecting your editor for cron, add the following to the bottom of the schedules list. Make sure to update the path to the location of `cf.sh`.
 
 ```shell
 @hourly bash /path/to/caddy/cf.sh
 ```
-{: .nolineno }
 
 Then mark both scripts as executable.
 
@@ -281,14 +277,12 @@ Then mark both scripts as executable.
 chmod +x ./cf.sh
 chmod +x ./reload.sh
 ```
-{: .nolineno }
 
 Now run the `cf.sh` script to generate the `cloudflare-proxies` file in `/configs/`. 
 
 ```shell
 bash cf.sh
 ```
-{: .nolineno }
 
 If successful you should be able to `cat` the file and get a list of IPs that match the ones listed [here](https://www.cloudflare.com/ips/) under the IPv4 section.
 
@@ -297,36 +291,34 @@ alexander@caddy-guide:~/caddy$ bash cf.sh
 alexander@caddy-guide:~/caddy$ cat ./configs/cloudflare-proxies
 trusted_proxies 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22
 ```
-{: .nolineno }
 
 Change directory into `/caddy/configs` and edit the following files with the provided information.
 
-```shell
+```shell title="cloudflare-clientip-map"
 header_up X-Real-IP {http.request.header.CF-Connecting-IP}
 header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
 ```
-{: file="cloudflare-clientip-map"}
 
-```shell
+```shell title="cloudflare-tls"
 tls {
         dns cloudflare {env.CLOUDFLARETOKEN}
 }
 ```
-{: file="cloudflare-tls"}
 
 ### Obtaining a Cloudflare API Token
 
 Next we need to generate an API token for Caddy to use for domain verification. The DNS Challenge utilizes a TXT record that is created by Caddy that Let's Encrypt can then verify against. To generate this token head back to your Cloudflare Dashboard and click on the profile dropdown on the top right of the page, click "My Profile" then "API Tokens" from the left-hand menu.
 
-![Navigating to the API Tokens page in Cloudflare](/src/assets/series/caddy/p1/caddy_cf_profile.webp){: .shadow }
+![Navigating to the API Tokens page in Cloudflare](/src/assets/posts_images/2023/12/04/caddy_cf_profile.webp)
 _Navigating to the API Tokens page in Cloudflare_
 
 Click on the "Create Token" button in the API Tokens section. Then click on the "Use template" button for the "Edit zone DNS" option.
 
-> Do not use the Global API Key for Caddy!
-{: .prompt-danger }
+<Aside type="danger">
+  Do not use the Global API Key for Caddy!
+</Aside>
 
-![Cloudflare API template page](/src/assets/series/caddy/p1/caddy_cf_api-template.webp){: .shadow }
+![Cloudflare API template page](/src/assets/posts_images/2023/12/04/caddy_cf_api-template.webp)
 _Cloudflare API template page_
 
 Give your token a recognizable name. Then in the <u>Permissions</u> section set the following options:
@@ -346,12 +338,12 @@ In the <u>Zone Resources</u> section:
 
 Your page should look similar to the image below.
 
-![Cloudflare API Token Setup](/src/assets/series/caddy/p1/caddy_cf_api-token.webp){: .shadow }
+![Cloudflare API Token Setup](/src/assets/posts_images/2023/12/04/caddy_cf_api-token.webp)
 _Cloudflare API Token Setup_
 
 Then click "Continue to summary". Here you can verify your configuration for the token. Click "Create Token" to finish generating your API token. Copy it to a safe location as we will need it later.
 
-![Cloudflare API Token](/src/assets/series/caddy/p1/caddy_cf_new-token.webp){: .shadow }
+![Cloudflare API Token](/src/assets/posts_images/2023/12/04/caddy_cf_new-token.webp)
 _Cloudflare API Token_
 
 With the token in hand, jump back over to the host and in the `/caddy` directory create a new file called .env.
@@ -359,14 +351,12 @@ With the token in hand, jump back over to the host and in the `/caddy` directory
 ```shell
 nano ~/caddy/.env
 ```
-{: .nolineno }
 
 Add the following to the file.
 
-```
+```dotenv title=".env"
 CLOUDFLARETOKEN=RX1uC0kAWvXVq1R_ONrWxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
-{: file=".env"}
 
 Make sure to replace `RX1uC0kAWvXVq1R_ONrWxxxxxxxxxxxxxxxxxxxxxxxxx` with the token you generated above. Save and close the file with `CTRL + x` then `y`.
 
@@ -378,7 +368,6 @@ With Caddy's config prepped and ready to deploy we focus on prepping for Cloudfl
 mkdir ~/cloudflare
 touch ~/cloudflare/cloudflare.yml ~/cloudflare/.env
 ```
-{: .nolineno }
 
 Next edit the `cloudflare.yml` file and copy the following into it.
 
@@ -386,9 +375,8 @@ Next edit the `cloudflare.yml` file and copy the following into it.
 cd ~/cloudflare
 nano cloudflare.yml
 ```
-{: .nolineno }
 
-```yaml
+```yaml title="cloudflare.yml"
 version: '3'
 services:
  tunnel:
@@ -404,7 +392,6 @@ networks:
     name: cf-internal-net
     external: true
 ```
-{: file="cloudflare.yml"}
 
 Save and close the file with `CTRL + x` then `y`. We will come back to the `.env` file later.
 
@@ -412,46 +399,45 @@ Save and close the file with `CTRL + x` then `y`. We will come back to the `.env
 
 Now that we have the host prepared and Cloudflare configured, we can start setting up the tunnel. To get the tunnel up we need to navigate to the Zero Trust Dashboard in Cloudflare. Jump back to the main Cloudflare dashboard and then click on "Zero Trust" in the menu on the left.
 
-![Cloudflare Zero Trust ](/src/assets/series/caddy/p1/caddy_cf_zero-trust.webp){: .shadow }
+![Cloudflare Zero Trust ](/src/assets/posts_images/2023/12/04/caddy_cf_zero-trust.webp)
 _Cloudflare Zero Trust menu option_
 
 Once on the Zero Trust dashboard, select the Access > Tunnels option.
 
 <sub>*Sorry dark mode users the Zero Trust dash does not have dark mode :(*</sub>
 
-![Cloudflare Tunnels](/src/assets/series/caddy/p1/caddy_cf_tunnels-dash.webp){: .shadow }
+![Cloudflare Tunnels](/src/assets/posts_images/2023/12/04/caddy_cf_tunnels-dash.webp)
 _Cloudflare Tunnels menu option_
 
 Now click on the "+ Create a tunnel" button on the Tunnels overview page.
 
-![Cloudflare Tunnels Overview](/src/assets/series/caddy/p1/caddy_cf_create-tun.png){: .shadow }
+![Cloudflare Tunnels Overview](/src/assets/posts_images/2023/12/04/caddy_cf_create-tun.png)
 _Cloudflare Tunnels Overview_
 
 Follow the wizard to create the tunnel. Give it a name and copy the Docker run command on the next page.
 
-![Cloudflare Tunnel Creation Wizard Part 1](/src/assets/series/caddy/p1/caddy_cf_tunnel-setup-1.webp){: .shadow }
+![Cloudflare Tunnel Creation Wizard Part 1](/src/assets/posts_images/2023/12/04/caddy_cf_tunnel-setup-1.webp)
 _First Part of the Tunnel Creation Wizard_
 
 Take the command and paste it into notepad. Delete everything but the token and then copy the token. 
 
-![Edit Docker Run Command for the Tunnel](/src/assets/series/caddy/p1/caddy_cf_copy-token.webp){: .shadow }
+![Edit Docker Run Command for the Tunnel](/src/assets/posts_images/2023/12/04/caddy_cf_copy-token.webp)
 _Editing the Docker Run Command for the Tunnel_
 
 Now return to your host and edit the `.env` file in the `/cloudflare` directory. Copy the following into the file. Replace my demo token with the one you copied earlier.
 
-```shell
+```dotenv title=".env"
 TOKEN=eyJhIjoiZDNkZGU5NDhlZDEzMWZlMTM0NzRlODVkNWI3OGYwOTEiLCJ0IjoiMTVlZGY1ZTUtNDE1YS00YWFmLTg0NzQtN2VkNDhiNTU2OThjIiwicyI6Ik1qTmtNek0wTkRBdFpHSTROaTAwT1RrMUxXRTBaREV0WmpVek1Ea3pNakEzTm1aaSJ9
 ```
-{: .nolineno file=".env"}
 
 Save and close the file. Your `/cloudflare` directory should look like the following image after you are done.
 
-![Example Cloudflare Tunnel Config](/src/assets/series/caddy/p1/caddy_docker_cf-setup.webp){: .shadow }
+![Example Cloudflare Tunnel Config](/src/assets/posts_images/2023/12/04/caddy_docker_cf-setup.webp)
 _Example Cloudflare Tunnel Config_
 
 In the `/cloudflare` directory run `docker compose -f cloudflare.yml up`. If you watch the Tunnel Wizard you can see the local tunnel connect to Cloudflare in the lower box labeled "Connectors."
 
-![Local Tunnel Connecting to Cloudflare](/src/assets/series/caddy/p1/caddy_cf_tunnel-connect.webp){: .shadow }
+![Local Tunnel Connecting to Cloudflare](/src/assets/posts_images/2023/12/04/caddy_cf_tunnel-connect.webp)
 _Local Tunnel Connecting to Cloudflare_
 
 Once the tunnel is connected. Hit `CTRL + C` to terminate the Cloudflare container. Then re-run `docker compose -f cloudflare.yml up -d`. The `-d` argument runs the container in 'detach mode' so that it can run in the background. By running `docker ps` you can verify if it is up and running.
@@ -461,29 +447,29 @@ alexander@caddy-guide:~/cloudflare$ docker ps
 CONTAINER ID   IMAGE                           COMMAND                  CREATED         STATUS         PORTS     NAMES
 e9e03f600a69   cloudflare/cloudflared:latest   "cloudflared --no-au…"   9 minutes ago   Up 2 seconds             cloudflare-tunnel-1
 ```
-{: .nolineno }
 
 Return to the Zero Trust dashboard and continue to the "Route tunnel" step in the Tunnel wizard. Under the "Public Hostnames" tab select your domain in the "Domain" drop-down. Then select `HTTPS` for the service "Type" and enter `caddy-server-1:443` for the service "URL."
 
-> If you change the service name for Caddy in the `caddy.yml` file, or you are using a directory that's not named "caddy", you will need to update this URL to match. Reference: caddy = The directory the compose file is in, server = service name in caddy.yml compose file, 1 = replication identifier.
-{: .prompt-tip }
+<Aside type="tip">
+  If you change the service name for Caddy in the `caddy.yml` file, or you are using a directory that's not named "caddy", you will need to update this URL to match. Reference: caddy = The directory the compose file is in, server = service name in caddy.yml compose file, 1 = replication identifier.
+</Aside>
 
-![Route tunnel example](/src/assets/series/caddy/p1/caddy_cf_tunnel-route.webp){: .shadow }
+![Route tunnel example](/src/assets/posts_images/2023/12/04/caddy_cf_tunnel-route.webp)
 _Route tunnel example_
 
 Under the "Additional application settings", select TLS and then input your domain name into the "Origin Server Name" field. 
 
-![Tunnel SNI config](/src/assets/series/caddy/p1/caddy_cf_tunnel-sni.webp){: .shadow }
+![Tunnel SNI config](/src/assets/posts_images/2023/12/04/caddy_cf_tunnel-sni.webp)
 _Tunnel SNI config_
 
 You can then save the tunnel configuration. We can come back later to add more routes, once we get everything set up and working with the root domain.
 
-![Online and Connected Tunnel](/src/assets/series/caddy/p1/caddy_cf_connected-tunnel.webp){: .shadow }
+![Online and Connected Tunnel](/src/assets/posts_images/2023/12/04/caddy_cf_connected-tunnel.webp)
 _Online and Connected Tunnel_
 
 If you return to the [main dashboard](https://dash.cloudflare.com/), select your domain and go to DNS > Records. You can see the entry added for the root domain pointing to the tunnel.
 
-![Tunnel Entry in DNS Records](/src/assets/series/caddy/p1/caddy_cf_tunnel-record.webp){: .shadow }
+![Tunnel Entry in DNS Records](/src/assets/posts_images/2023/12/04/caddy_cf_tunnel-record.webp)
 _Tunnel entry in DNS records_
 
 ## Configuring X-Forwarded-For Header Security
@@ -492,14 +478,14 @@ I'm not going to dwell on the details here, but this is highly recommended. Espe
 
 Follow [the guide](https://www.authelia.com/integration/proxies/fowarded-headers/#cloudflare) at the bottom of the docs to set up a transform rule to remove the X-Forwarded-For header in requests from Cloudflare. Note that the Cloudflare dashboard UI changed slightly since their guide was created. All the options still exist, they just look slightly different from the images.
 
-![Example Transform Rule](/src/assets/series/caddy/p1/caddy_cf_transform-rule.webp){: .shadow }
+![Example Transform Rule](/src/assets/posts_images/2023/12/04/caddy_cf_transform-rule.webp)
 _Example Transform Rule_
 
 ## Configuring Cloudflare SSL/TLS Encryption
 
 With our tunnel running now, we need to do one more thing in Cloudflare before we can deploy Caddy. Navigate back to the main Cloudflare dashboard and click on your domain on the homepage. In the domain settings, click on SSL/TLS in the left menu. Then set the SSL/TLS encryption mode to "Full (strict)".
 
-![Cloudflare SSL/TLS Setting](/src/assets/series/caddy/p1/caddy_cf_ssl-setting.webp){: .shadow }
+![Cloudflare SSL/TLS Setting](/src/assets/posts_images/2023/12/04/caddy_cf_ssl-setting.webp)
 _Cloudflare SSL/TLS Setting_
 
 This setting is necessary since we will be using HTTPS all the way through to Caddy, but Caddy will be managing its own certificates from Let's Encrypt rather than using the Cloudflare one.
@@ -512,9 +498,8 @@ Head back over to your host and navigate to the `/caddy` directory. Since we alr
 cd ~/caddy
 nano Caddyfile
 ```
-{: .nolineno }
 
-```conf
+```bash title="Caddyfile"
 # Global Config
 {
 	email certs@universelab.net
@@ -542,7 +527,6 @@ universelab.net {
   respond "I'm Alive!"
 }
 ```
-{: file="Caddyfile"}
 
 Make sure to edit the following lines:
 
@@ -564,11 +548,10 @@ You can find more global configuration options in Caddy's docs, [here](https://c
 ```shell
 docker compose -f caddy.yml up 
 ```
-{: .nolineno }
 
 Now watch the Caddy container log.
 
-![Deploying Caddy with staging acme server](/src/assets/series/caddy/p1/caddy_staging_deploy.webp){: .shadow }
+![Deploying Caddy with staging acme server](/src/assets/posts_images/2023/12/04/caddy_staging_deploy.webp)
 _Deploying Caddy with staging acme server_
 
 ```shell
@@ -584,7 +567,7 @@ caddy-server-1  | {"level":"info","ts":1701043251.420341,"logger":"tls.obtain","
 
 Notice on lines 7-8 where Caddy reported back that it obtained the certificate and released the lock. This means it was able to query Let's Encrypt and Cloudflare using the DNS acme challenge to verify the domain and generate a certificate. Hit `CTRL + C` to terminate the currently running Caddy container. Then edit the `Caddyfile` again and comment out line 7 and uncomment line 4. This will switch the acme server from the staging one to production. Your `Caddyfile` should now look like this one:
 
-```conf
+```bash title="Caddyfile"
 # Global Config
 {
 	email certs@universelab.net
@@ -612,11 +595,10 @@ universelab.net {
   respond "I'm Alive!"
 }
 ```
-{: file="Caddyfile"}
 
 Re-deploy Caddy using `docker compose -f caddy.yml up`. Watch the logs again for the same message as before though, this time we are pulling production certificates. Once you see that message. Open a browser window and navigate to your domain. If everything is working you should see the "I'm Alive!" text in the browser. 
 
-![I'm Alive!](/src/assets/series/caddy/p1/caddy_prod_deploy.webp){: .shadow}
+![I'm Alive!](/src/assets/posts_images/2023/12/04/caddy_prod_deploy.webp)
 _I'm Alive!_
 
 ## Basic Troubleshooting FAQ
@@ -656,7 +638,8 @@ Files for this post can be found in the [blog-files](https://github.com/alexandz
 
 *I utilized [netboot.xyz](https://netboot.xyz/) to deploy the Ubuntu server image to the Hyper-V VM I am using for this guide. If you don't know what netboot/pxe boot is take a look at [Technotim's blog post](https://technotim.live/posts/netbootxyz-tutorial/) about it! And don't forget to [sub](https://l.technotim.live/subscribe) to him on YouTube!*
 
-### Footnotes
+---
+**Footnotes**
 
 [^1]: [https://en.wikipedia.org/wiki/Virtual_private_network](https://en.wikipedia.org/wiki/Virtual_private_network)
 [^2]: [https://en.wikipedia.org/wiki/Tunneling_protocol#Secure_Shell_tunneling](https://en.wikipedia.org/wiki/Tunneling_protocol#Secure_Shell_tunneling)

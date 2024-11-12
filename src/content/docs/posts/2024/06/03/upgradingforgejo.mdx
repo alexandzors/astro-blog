@@ -4,23 +4,36 @@ excerpt: Migrating my Forgejo server to s3 object storage and adding action runn
 date: 2024-06-03
 lastUpdated: 2024-06-03
 tags:
-  - TagName
+  - homelab
+  - forgejo
+  - git
+  - ci/cd
+  - s3
+  - minio
+  - workflows
+  - actions
 authors:
-  - name: Alex
-    title: Wizard
-    picture: https://avatars.githubusercontent.com/u/25626115?v=4
-    url: https://alexsguardian.net/
+  - alex
 featured: false
+cover:
+  alt: Image displaying the Forgejo logo.
+  image: /public/covers/2024/upgradingforgejo_banner.webp
 draft: false
 ---
 
+import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
 
-<div style="display: flex; justify-content: center;"><a href="#migrating-to-s3-object-storage">Skip to the goods</a></div>
------
+<sub>*FTC: Some links in this post may be income earning affiliate links.*</sub>
+<br />
+---
+
+<div style="display: flex; justify-content: center;"><a href="#migrating-to-s3-object-storage"> > Skip to the goods < </a></div>
 
 Awhile ago I spun up my own instance of Forgejo. [Forgejo](https://forgejo.org), if you are not familiar, is a hard fork of [Gitea](https://gitea.com) when they became a *for-profit* company and is run/managed by [Codeberg](https://codeberg.org). If you want more details on why Forgejo came to be, you can read their blog post [here](https://forgejo.org/2022-12-15-hello-forgejo/). As of now it's basically a drop-in replacement for Gitea. Though over time this will change as the two projects drift apart. So it may not be one in the future! Anyhow, I've been rolling my own instance since September 2023 and, recently I have been moving my entire lab towards a more [GitOps](https://about.gitlab.com/topics/gitops/) approach. To do this and do it securely (in the confines of my internal network), I've decided to turn Forgejo into my full CI/CD manager and config storage place. I'll also be using [Bitwarden's Secret Manager](https://bitwarden.com/products/secrets-manager/) to manage, well, secrets. 
 
 Before I begin re-doing my lab for the umpteenth time, I need to change how Forgejo operates currently. That way Forgejo can support the transition from 'FileOps' (aka loose files) to GitOps. Now this isn't the 'perfect' setup process as the repo storage still lives in /data, and it's not currently replicated across my small swarm cluster. This will change when I get to actually rebuilding the cluster from the ground up to utilize NFS mounts for shared storage. Though that requires more hardware, which the wife probably won't be happy about. :sweat_smile:
+
+<br />
 
 ## Migrating to S3 Object Storage
 
@@ -161,171 +174,165 @@ _Example MinIO bucket directory layout_
 
 My current s3 bucket directory layout:
 
-```text title="arn:aws:s3:::forgejo"
-actions/
-  |- artifacts/
-  |- logs/
 
-attachments/
-
-avatars/
-  |- repositories/
-  |- users/
-```
+<FileTree>
+- ... arn:aws:s3:::forgejo
+- actions/
+    - artifacts/
+    - logs/
+- attachments/
+- avatars/
+    - repositories/
+    - users/
+</FileTree>
 
 With MinIO ready to go, all I had to do was update the Forgejo container environment variables for the MinIO connection and re-deploy. Forgejo environment variables can be defined using the `env -> ini` notation. So in your `app.ini` you have sections that are labeled, such as '[security].' In order to update the INI value for say, 'INSTALL_LOCK', you'd need to define it as `FORGEJO__security__INSTALL_LOCK`.
 
 As you can see in the example snippet file below, I am defining the MinIO connection information, as well as, where to look for specific directories in the bucket.
 
-```yml title="forgejo-minio-env-example"
-    # < truncated >
-    environment:
-      # Storage Configs
-      - FORGEJO__storage__STORAGE_TYPE="minio"
-      - FORGEJO__storage__MINIO_USE_SSL="true"
-      - FORGEJO__storage__MINIO_ENDPOINT="s3.${LAB_DOMAIN}"
-      - FORGEJO__storage__MINIO_ACCESS_KEY_ID=${FJ_S3_ACCESS_ID}
-      - FORGEJO__storage__MINIO_SECRET_ACCESS_KEY=${FJ_S3_ACCESS_KEY}
-      - FORGEJO__storage__MINIO_BUCKET="forgejo"
-      - FORGEJO__storage__MINIO_LOCATION="us-east-1"
-      # Path Configs
-      - FORGEJO__attachment__MINIO_BASE_PATH="attachments/"
-      - FORGEJO__lfs__MINIO_BASE_PATH="lfs/"
-      - FORGEJO__avatar__MINIO_BASE_PATH="avatars/users/"
-      - FORGEJO__repo-avatar__MINIO_BASE_PATH="avatars/repositories/"
-      - FORGEJO__repo-archive__MINIO_BASE_PATH="archives/"
-      - FORGEJO__packages__MINIO_BASE_PATH="packages/"
-      - FORGEJO__storage.actions_log__MINIO_BASE_PATH="actions/logs/"
-      - FORGEJO__actions.artifacts__MINIO_BASE_PATH="actions/artifacts/"
+
+<Tabs>
+  <TabItem label="MinIO Env Variables">
+    ```yml title="forgejo-minio-env-example"
       # < truncated >
+      environment:
+        # Storage Configs
+        - FORGEJO__storage__STORAGE_TYPE="minio"
+        - FORGEJO__storage__MINIO_USE_SSL="true"
+        - FORGEJO__storage__MINIO_ENDPOINT="s3.${LAB_DOMAIN}"
+        - FORGEJO__storage__MINIO_ACCESS_KEY_ID=${FJ_S3_ACCESS_ID}
+        - FORGEJO__storage__MINIO_SECRET_ACCESS_KEY=${FJ_S3_ACCESS_KEY}
+        - FORGEJO__storage__MINIO_BUCKET="forgejo"
+        - FORGEJO__storage__MINIO_LOCATION="us-east-1"
+        # Path Configs
+        - FORGEJO__attachment__MINIO_BASE_PATH="attachments/"
+        - FORGEJO__lfs__MINIO_BASE_PATH="lfs/"
+        - FORGEJO__avatar__MINIO_BASE_PATH="avatars/users/"
+        - FORGEJO__repo-avatar__MINIO_BASE_PATH="avatars/repositories/"
+        - FORGEJO__repo-archive__MINIO_BASE_PATH="archives/"
+        - FORGEJO__packages__MINIO_BASE_PATH="packages/"
+        - FORGEJO__storage.actions_log__MINIO_BASE_PATH="actions/logs/"
+        - FORGEJO__actions.artifacts__MINIO_BASE_PATH="actions/artifacts/"
+        # < truncated >
 ```
+  </TabItem>
+  <TabItem label="Full Compose Example">
+  <Aside type="note">If you are curious about all the configuration options for Forgejo, you can check out the configuration cheat sheet [here](https://forgejo.org/docs/latest/admin/config-cheat-sheet/)</Aside>
+    ```yml title="forgejo.yml"
+    services:
+      server:
+        restart: always
+        healthcheck:
+          test: ["CMD", "curl", "-fSs", "localhost:3000/api/healthz"]
+          interval: 5s
+          timeout: 10s
+          retries: 3
+          start_period: 60s
+        image: codeberg.org/forgejo/forgejo:7.0
+        environment:
+          # Global Config
+          - FORGEJO_APP_NAME="Forgejo"
+          - FORGEJO_RUN_MODE="prod"
+          - FORGEJO_RUN_USER="git"
+          - FORGEJO_WORK_PATH="/data/gitea"
+          # Repository Configs
+          - FORGEJO__repository__ROOT="/data/git/repositories"
+          - FORGEJO__repository.local__LOCAL_COPY_PATH="/data/gitea/tmp/local-repo"
+          - FORGEJO__repository.pull-request__DEFAULT_MERGE_STYLE="merge"
+          - FORGEJO__repository.signing__DEFAULT_TRUST_MODEL="committer"
+          # Server Configs
+          - FORGEJO__server__APP_DATA_PATH="/data/gitea"
+          - FORGEJO__server__DOMAIN="git.${LAB_DOMAIN}"
+          - FORGEJO__server__SSH_DOMAIN="git.${LAB_DOMAIN}"
+          - FORGEJO__server__HTTP_PORT="3000"
+          - FORGEJO__server__ROOT_URL="https://git.${LAB_DOMAIN}"
+          - FORGEJO__server__DISABLE_SSH="false"
+          - FORGEJO__server__SSH_PORT="22"
+          - FORGEJO__server__SSH_LISTEN_PORT="22"
+          - FORGEJO__server__LFS_START_SERVER="true"
+          - FORGEJO__server__LFS_JWT_SECRET="${FJ_JWT_SECRET}"
+          - FORGEJO__server__OFFLINE_MODE="false"
+          # Database Configs
+          - FORGEJO__database__DB_TYPE="postgres"
+          - FORGEJO__database__HOST="${FJ_DB_HOST}"
+          - FORGEJO__database__NAME="${FJ_DB}"
+          - FORGEJO__database__USER="${FJ_DB_USER}"
+          - FORGEJO__database__PASSWD="${FJ_DB_PASS}"
+          - FORGEJO__database__LOG_SQL="false"
+          - FORGEJO__database__SCHEMA=""
+          - FORGEJO__database__SSL_MODE="disable"
+          # Indexer Configs
+          - FORGEJO__indexer__ISSUE_INDEXER_PATH="/data/gitea/indexers/issues.bleve"
+          # Session Configs
+          - FORGEJO__session__PROVIDER_CONFIG="/data/gitea/sessions"
+          - FORGEJO__session__PROVIDER="file"
+          - FORGEJO__session__COOKIE_SECURE="true"
+          # Log Configs
+          - FORGEJO__log__MODE="console"
+          - FORGEJO__log__LEVEL="info"
+          - FORGEJO__log__ROOT_PATH="/data/gitea/log"
+          # Security Configs
+          - FORGEJO__security__INSTALL_LOCK="true"
+          - FORGEJO__security__SECRET_KEY="${FJ_SECRET_KEY}"
+          - FORGEJO__security__REVERSE_PROXY_LIMIT="1"
+          - FORGEJO__security__REVERSE_PROXY_TRUSTED_PROXIES="${CADDY_INT_IP}"
+          - FORGEJO__security__INTERNAL_TOKEN="${FJ_INT_TOKEN}"
+          - FORGEJO__security__PASSWORD_HASH_ALGO="${FJ_PASS_ALGO}"
+          # Service Configs
+          - FORGEJO__service__DISABLE_REGISTRATION="true"
+          - FORGEJO__service__REQUIRE_SIGNIN_VIEW="false"
+          - FORGEJO__service__REGISTER_EMAIL_CONFIRM="false"
+          - FORGEJO__service__ENABLE_NOTIFY_MAIL="false"
+          - FORGEJO__service__ALLOW_ONLY_EXTERNAL_REGISTRATION="false"
+          - FORGEJO__service__ENABLE_CAPTCHA="true"
+          - FORGEJO__service__CAPTCHA_TYPE="cfturnstile"
+          - FORGEJO__service__REQUIRE_CAPTCHA_FOR_LOGIN="true"
+          - FORGEJO__service__CF_TURNSTILE_SECRET="${FJ_CFT_SECRET}"
+          - FORGEJO__service__CF_TURNSTILE_SITEKEY="${FJ_CFT_SITE_KEY}"
+          - FORGEJO__service__DEFAULT_KEEP_EMAIL_PRIVATE="true"
+          - FORGEJO__service__DEFAULT_ALLOW_CREATE_ORGANIZATION="true"
+          - FORGEJO__service__DEFAULT_ENABLE_TIMETRACKING="true"
+          - FORGEJO__service__NO_REPLY_ADDRESS="noreply@${FJ_DOMAIN}"
+          # Mailer Configs
+          - FORGEJO__mailier__ENABLED="false"
+          # OpenID Configs
+          - FORGEJO__openid__ENABLE_OPENID_SIGNIN="false"
+          - FORGEJO__openid__ENABLE_OPENID_SIGNUP="false"
+          # cron Configs
+          - FROGEJO__cron.update_checker__ENABLED="false"
+          - FORGEJO__oauth2__JWT_SECRET="${FJ_OAUTH_SEC}"
+          # Actions Configs
+          - FORGEJO__actions__ENABLED="true"
+          - FORGEJO__actions__DEFAULT_ACTIONS_URL="https://git.${LAB_DOMAIN}"
+          - FORGEJO__actions__ARTIFACT_RETENTION_DAYS="90"
+          # Storage Configs
+          - FORGEJO__storage__STORAGE_TYPE="minio"
+          - FORGEJO__storage__MINIO_USE_SSL="true"
+          - FORGEJO__storage__MINIO_ENDPOINT="s3.${LAB_DOMAIN}"
+          - FORGEJO__storage__MINIO_ACCESS_KEY_ID=${FJ_S3_ACCESS_ID}
+          - FORGEJO__storage__MINIO_SECRET_ACCESS_KEY=${FJ_S3_ACCESS_KEY}
+          - FORGEJO__storage__MINIO_BUCKET="forgejo"
+          - FORGEJO__storage__MINIO_LOCATION="us-east-1"
+          # Path Configs
+          - FORGEJO__attachment__MINIO_BASE_PATH="attachments/"
+          - FORGEJO__lfs__MINIO_BASE_PATH="lfs/"
+          - FORGEJO__avatar__MINIO_BASE_PATH="avatars/users/"
+          - FORGEJO__repo-avatar__MINIO_BASE_PATH="avatars/repositories/"
+          - FORGEJO__repo-archive__MINIO_BASE_PATH="archives/"
+          - FORGEJO__packages__MINIO_BASE_PATH="packages/"
+          - FORGEJO__storage.actions_log__MINIO_BASE_PATH="actions/logs/"
+          - FORGEJO__actions.artifacts__MINIO_BASE_PATH="actions/artifacts/"
+        volumes:
+          - ./data:/data
+          - /etc/timezone:/etc/timezone:ro
+          - /etc/localtime:/etc/localtime:ro
+        ports:
+          - 3000:3000
+          - 2222:22
+      ```
+    </TabItem>
+</Tabs>
 
-
-<a name="compose-example"></a>
-<details>
-  <summary>Forgejo Compose Example [Expand me]</summary>
-<div markdown="1">
-
-```yml title="forgejo.yml"
-version: '3'
-services:
-  server:
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-fSs", "localhost:3000/api/healthz"]
-      interval: 5s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    image: codeberg.org/forgejo/forgejo:7.0
-    environment:
-      # Global Config
-      - FORGEJO_APP_NAME="Forgejo"
-      - FORGEJO_RUN_MODE="prod"
-      - FORGEJO_RUN_USER="git"
-      - FORGEJO_WORK_PATH="/data/gitea"
-      # Repository Configs
-      - FORGEJO__repository__ROOT="/data/git/repositories"
-      - FORGEJO__repository.local__LOCAL_COPY_PATH="/data/gitea/tmp/local-repo"
-      - FORGEJO__repository.pull-request__DEFAULT_MERGE_STYLE="merge"
-      - FORGEJO__repository.signing__DEFAULT_TRUST_MODEL="committer"
-      # Server Configs
-      - FORGEJO__server__APP_DATA_PATH="/data/gitea"
-      - FORGEJO__server__DOMAIN="git.${LAB_DOMAIN}"
-      - FORGEJO__server__SSH_DOMAIN="git.${LAB_DOMAIN}"
-      - FORGEJO__server__HTTP_PORT="3000"
-      - FORGEJO__server__ROOT_URL="https://git.${LAB_DOMAIN}"
-      - FORGEJO__server__DISABLE_SSH="false"
-      - FORGEJO__server__SSH_PORT="22"
-      - FORGEJO__server__SSH_LISTEN_PORT="22"
-      - FORGEJO__server__LFS_START_SERVER="true"
-      - FORGEJO__server__LFS_JWT_SECRET="${FJ_JWT_SECRET}"
-      - FORGEJO__server__OFFLINE_MODE="false"
-      # Database Configs
-      - FORGEJO__database__DB_TYPE="postgres"
-      - FORGEJO__database__HOST="${FJ_DB_HOST}"
-      - FORGEJO__database__NAME="${FJ_DB}"
-      - FORGEJO__database__USER="${FJ_DB_USER}"
-      - FORGEJO__database__PASSWD="${FJ_DB_PASS}"
-      - FORGEJO__database__LOG_SQL="false"
-      - FORGEJO__database__SCHEMA=""
-      - FORGEJO__database__SSL_MODE="disable"
-      # Indexer Configs
-      - FORGEJO__indexer__ISSUE_INDEXER_PATH="/data/gitea/indexers/issues.bleve"
-      # Session Configs
-      - FORGEJO__session__PROVIDER_CONFIG="/data/gitea/sessions"
-      - FORGEJO__session__PROVIDER="file"
-      - FORGEJO__session__COOKIE_SECURE="true"
-      # Log Configs
-      - FORGEJO__log__MODE="console"
-      - FORGEJO__log__LEVEL="info"
-      - FORGEJO__log__ROOT_PATH="/data/gitea/log"
-      # Security Configs
-      - FORGEJO__security__INSTALL_LOCK="true"
-      - FORGEJO__security__SECRET_KEY="${FJ_SECRET_KEY}"
-      - FORGEJO__security__REVERSE_PROXY_LIMIT="1"
-      - FORGEJO__security__REVERSE_PROXY_TRUSTED_PROXIES="${CADDY_INT_IP}"
-      - FORGEJO__security__INTERNAL_TOKEN="${FJ_INT_TOKEN}"
-      - FORGEJO__security__PASSWORD_HASH_ALGO="${FJ_PASS_ALGO}"
-      # Service Configs
-      - FORGEJO__service__DISABLE_REGISTRATION="true"
-      - FORGEJO__service__REQUIRE_SIGNIN_VIEW="false"
-      - FORGEJO__service__REGISTER_EMAIL_CONFIRM="false"
-      - FORGEJO__service__ENABLE_NOTIFY_MAIL="false"
-      - FORGEJO__service__ALLOW_ONLY_EXTERNAL_REGISTRATION="false"
-      - FORGEJO__service__ENABLE_CAPTCHA="true"
-      - FORGEJO__service__CAPTCHA_TYPE="cfturnstile"
-      - FORGEJO__service__REQUIRE_CAPTCHA_FOR_LOGIN="true"
-      - FORGEJO__service__CF_TURNSTILE_SECRET="${FJ_CFT_SECRET}"
-      - FORGEJO__service__CF_TURNSTILE_SITEKEY="${FJ_CFT_SITE_KEY}"
-      - FORGEJO__service__DEFAULT_KEEP_EMAIL_PRIVATE="true"
-      - FORGEJO__service__DEFAULT_ALLOW_CREATE_ORGANIZATION="true"
-      - FORGEJO__service__DEFAULT_ENABLE_TIMETRACKING="true"
-      - FORGEJO__service__NO_REPLY_ADDRESS="noreply@${FJ_DOMAIN}"
-      # Mailer Configs
-      - FORGEJO__mailier__ENABLED="false"
-      # OpenID Configs
-      - FORGEJO__openid__ENABLE_OPENID_SIGNIN="false"
-      - FORGEJO__openid__ENABLE_OPENID_SIGNUP="false"
-      # cron Configs
-      - FROGEJO__cron.update_checker__ENABLED="false"
-      - FORGEJO__oauth2__JWT_SECRET="${FJ_OAUTH_SEC}"
-      # Actions Configs
-      - FORGEJO__actions__ENABLED="true"
-      - FORGEJO__actions__DEFAULT_ACTIONS_URL="https://git.${LAB_DOMAIN}"
-      - FORGEJO__actions__ARTIFACT_RETENTION_DAYS="90"
-      # Storage Configs
-      - FORGEJO__storage__STORAGE_TYPE="minio"
-      - FORGEJO__storage__MINIO_USE_SSL="true"
-      - FORGEJO__storage__MINIO_ENDPOINT="s3.${LAB_DOMAIN}"
-      - FORGEJO__storage__MINIO_ACCESS_KEY_ID=${FJ_S3_ACCESS_ID}
-      - FORGEJO__storage__MINIO_SECRET_ACCESS_KEY=${FJ_S3_ACCESS_KEY}
-      - FORGEJO__storage__MINIO_BUCKET="forgejo"
-      - FORGEJO__storage__MINIO_LOCATION="us-east-1"
-      # Path Configs
-      - FORGEJO__attachment__MINIO_BASE_PATH="attachments/"
-      - FORGEJO__lfs__MINIO_BASE_PATH="lfs/"
-      - FORGEJO__avatar__MINIO_BASE_PATH="avatars/users/"
-      - FORGEJO__repo-avatar__MINIO_BASE_PATH="avatars/repositories/"
-      - FORGEJO__repo-archive__MINIO_BASE_PATH="archives/"
-      - FORGEJO__packages__MINIO_BASE_PATH="packages/"
-      - FORGEJO__storage.actions_log__MINIO_BASE_PATH="actions/logs/"
-      - FORGEJO__actions.artifacts__MINIO_BASE_PATH="actions/artifacts/"
-    volumes:
-      - ./data:/data
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - 3000:3000
-      - 2222:22
-```
-
-
-> If you are curious about all the configuration options for Forgejo, you can check out the configuration cheat sheet [here](https://forgejo.org/docs/latest/admin/config-cheat-sheet/).
-
-
-</div>
-</details>
 <br />
 
 With the environment variables updated, and a quick redeploy of Forgejo, I was up and running with object storage via MinIO! A quick trip into the `Site Administration > Configuration > Summary` in Forgejo shows that LFS was now using MinIO as seen in the below image.
@@ -333,17 +340,34 @@ With the environment variables updated, and a quick redeploy of Forgejo, I was u
 ![FJ Site Admin Config for LFS](/src/assets/posts_images/2024/06/upgradingforgejo/fj-site-admin.webp)
 _Forgejo site admin config showing LFS using MinIO_
 
+<br />
+
 ## Setting up Forgejo Actions
 
 ![FJ Actions Meme](/src/assets/posts_images/2024/06/upgradingforgejo/fj_actions_meme.webp)
 
 All jokes aside, Forgejo Actions is actually fairly decent. The runner is not production ready (according to [Forgejo themselves](https://code.forgejo.org/forgejo/runner#forgejo-runner)) but it works well enough that I am going all in on it for my lab. Setting up the action runner was fairly straight forward. It's got a similar setup process to the self-hosted GitHub runner.
 
-1. Enable Actions in the `app.ini` or using environment variables. Restart/Redeploy Forgejo.
-  - <a href="#compose-example">See above</a> for an example using environment variables under `#Actions Configs`.
-2. Create a new runner in `Site Administration > Actions > Runners > Create new runner`.
-3. Copy the new runner registration token.
-4. Deploy Forgejo Runner and register it with the token from step 3.
+<Steps>
+  <ol>
+    <li>
+    Enable Actions in the `app.ini` or using environment variables.
+        - <a href="#compose-example">See above</a> for an example using environment variables under `#Actions Configs`.
+    </li>
+    <li>
+     Restart/Redeploy Forgejo.
+    </li>
+    <li>
+    Create a new runner in `Site Administration > Actions > Runners > Create new runner`.
+    </li>
+    <li>
+    Copy the new runner registration token.
+    </li>
+    <li>
+    Deploy Forgejo Runner and register it with the token from step 3.
+    </li>
+  </ol>
+</Steps>
 
 Now there are a few ways you could deploy the runner, but I decided to deploy it in Docker. You can bind the runner container to the Docker sock, but I did not. I really do not like doing that so, I ended up using [Docker in Docker (DIND)](https://hub.docker.com/_/docker). It's not really recommended to use Docker this way but for my lab it will do fine. The compose file was also pretty easy to set up.
 

@@ -1,0 +1,6 @@
+{
+    "ltex.additionalRules.languageModel": "en",
+    "ltex.languageToolHttpServerUri": "http://cluster.lab:8010",
+    "ltex.statusBarItem": true,
+    "ltex.completionEnabled": true
+}

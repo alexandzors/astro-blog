@@ -4,24 +4,30 @@ excerpt: A quick synopsis of how I rebuilt my business site in Astro
 date: 2024-09-06
 lastUpdated: 2024-09-06
 tags:
-  - TagName
+  - development
+  - astro
+  - wordpress
+  - github actions
+  - ci/cd
 authors:
   - alex
-featured: true
+featured: false
+cover:
+  alt: Image depicting a cross section between the old and new website.
+  image: /public/covers/2024/migrating-agent-to-astro_banner.webp
 draft: false
 cover:
   alt: A beautiful cover image
   image: /public/profile_alex.jpg
 ---
 
+import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
 
-<div style="display: flex; justify-content: center;"><a href="#starting-out">Skip to the goods</a></div>
-
------
-
-###### *FTC: Some links in this post are income earning affiliate links.*
-
+<sub>*FTC: Some links in this post may be income earning affiliate links.*</sub>
 <br></br>
+---
+
+<div style="display: flex; justify-content: center;"><a href="#starting-out"> > Skip to the goods < </a></div>
 
 If you are a returning reader of the blog you may remember when this first started as a simple GitHub repository. That repository used a simple static website theme for my old time Grafana guides. It then moved to WordPress, along with the launch of my business. It was then separated from the [business](https://alexsguardian.net) portion and became its own WordPress instance.
 
@@ -37,10 +43,13 @@ _Pagespeed for agnet_
 
 <sub>ps: we don't talk about mobile being 77 atm for performance. :eyes:</sub>
 
+<br></br>
+
 ## Starting Out
 
 I decided I wanted to piggyback off an existing theme rather than start from scratch. I'm not crazily experienced with web dev so using an existing theme as a starting point would allow me to get my site up faster. After hunting around for one I ended up settling on the [Accessible Astro Starter](https://astro.build/themes/details/accessible-astro-starter/) theme. This theme is great as it includes accessible Astro components and is built for being, well, accessible. To begin I cloned the repository and ran `npm install` to install the necessary dependencies. Once that was finished I was then able to run `npm run dev` which would run a dev preview of the site in the browser which refreshed for live file changes.
 
+<br></br>
 
 ## Configuring The Theme
 
@@ -184,6 +193,8 @@ let domain = 'alexsguardian.net'
 ```
 
 The file defines the info for general metadata, Open Graph (fairly common meta integration for sites), a dedicated X (formerly known as Twitter) card setup, and finally the page title info. I ended up setting a [dev site](https://dev.alexsguardian.net) to push changes to test the metadata changes using the [open graph site](https://www.opengraph.xyz/). It also came in handy when I was diagnosing Cloudflare caching issues.
+
+<br></br>
 
 ## Setting Up The Dev/Prod Deployments
 
@@ -365,6 +376,8 @@ jobs:
 ```
 
 As you can see the workflows are combined into a single file for both prod and dev. It checks what branch has the changes and determines which job to run based on that. There isn't much difference besides removing the dev site banner and updating the Google Analytics ID to the production one. I also have page speed testing, but it's not reporting the results/failing the runs if it comes back bad. The eventual goal with page speed is to have it test the site after deploying on dev, and if it fails, revert the changes and fail the workflow run. Right now its just kind of there.
+
+<br></br>
 
 ## Creating New Pages
 
@@ -568,6 +581,8 @@ Since me and well 'coding' don't mix. I ended up going back and forth with ChatG
 ```
 
 If you want to see the component in detail you can check out the file [here](https://github.com/alexandzors/astro-agnet/blob/main/src/components/TestimonialCarousel.astro). The deployment process for production pulls a JSON file that the testimonial component uses for the actual data. This JSON file is updated automatically on feedback from my clients when they utilize the form link provided on invoices. Though at the moment this only updates when a new version of the production site is 'released'.
+
+<br></br>
 
 ## So What's Next And Other Thoughts?
 

@@ -13,10 +13,10 @@ export default defineConfig({
           prefix: 'posts',
             authors: {
               alex: {
-                name: 'Alex',
-                title: 'Wizard',
-                picture: '/profile_alex.jpg', // Images in the `public` directory are supported.
-                url: 'https://alexsguardian.net/',
+				name: 'Alexander Henderson',
+				title: 'Sometimes a "Developer"',
+				picture: '/profile_alex.jpg', // Images in the `public` directory are supported.
+				url: 'https://blog.alexsguardian.net/authors/alexander-henderson',
               },
             },
           })],
@@ -28,9 +28,10 @@ export default defineConfig({
             plugins: [pluginLineNumbers()],
         },
         social: {
-				blueSky: 'https://bsky.app/profile/alexandzors.bsky.social',
-				youtube: 'https://www.youtube.com/@alexandzors',
-            github: 'https://github.com/alexandzors'
+			blueSky: 'https://bsky.app/profile/alexandzors.bsky.social',
+			youtube: 'https://www.youtube.com/@alexandzors',
+            github: 'https://github.com/alexandzors',
+			email: 'mailto:blog@alexsguardian.net'
         },
 		}), partytown({
 			// https://docs.astro.build/en/guides/integrations-guide/partytown/

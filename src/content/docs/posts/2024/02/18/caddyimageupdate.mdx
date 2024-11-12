@@ -4,16 +4,19 @@ excerpt: Project status update for alexandzors/caddy
 date: 2024-02-18
 lastUpdated: 2024-02-18
 tags:
-  - TagName
+  - caddy
+  - docker
 authors:
-  - name: Alex
-    title: Wizard
-    picture: https://avatars.githubusercontent.com/u/25626115?v=4
-    url: https://alexsguardian.net/
+  - alex
 featured: false
 draft: false
 ---
 
+import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
+
+<sub>*FTC: Some links in this post may be income earning affiliate links.*</sub>
+<br />
+---
 
 ## Overview
 
@@ -30,6 +33,6 @@ As you can see above, my image now tags the version of Caddy when pushing the im
 
 The module `RussellLuo/caddy-ext/ratelimit` was replaced with `mholt/caddy-ratelimit`.
 
-## Third Party Note
+<br />
 
-This is a third party build for [Caddy](https:///caddyserver.com/). Please do not use this in a production environment. This is merely available for me and anyone else that needs a quick docker image / binary with the below plugins already installed. You can always use the [download page](https://caddyserver.com/download) to generate your own binary or use the [official Docker image](https://hub.docker.com/_/caddy).
+<Aside type="note">This is a third party build for [Caddy](https:///caddyserver.com/). Please do not use this in a production environment. This is merely available for me and anyone else that needs a quick docker image / binary with [these modules](https://github.com/alexandzors/caddy?tab=readme-ov-file#added-modules) already installed. You can always use the [download page](https://caddyserver.com/download) to generate your own binary or use the [official Docker image](https://hub.docker.com/_/caddy).</Aside>

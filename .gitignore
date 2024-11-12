@@ -19,3 +19,8 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+
+# Ignore drafts folders
+src/assets/posts_images/drafts/
+src/content/docs/posts/drafts/
