@@ -1,108 +1,109 @@
 ---
 title: Logging Fail2Ban to Discord
-excerpt: Logging Fail2Ban to Discord using webhooks
+excerpt: Logging Fail2Ban to Discord using webhooks.
 date: 2022-08-09
 lastUpdated: 2022-08-09
 tags:
-  - TagName
+  - discord
+  - logging
+  - ssh
+  - fail2ban
 authors:
-  - name: Alex
-    title: Wizard
-    picture: https://avatars.githubusercontent.com/u/25626115?v=4
-    url: https://alexsguardian.net/
+  - alex
 featured: false
 draft: false
+slug: posts/2022/08/09/Fail2Ban+Discord
 ---
 
+import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
 
+<sub>*FTC: Some links in this post may be income earning affiliate links.*</sub>
+<br />
+---
 
 Fail2Ban is a service that scans files like `/var/log/auth.log`, looking for failed authentication types and bans IPs that make repeated failed requests. It does this by updating firewall rules on the host to reject new connections from those IPs. It comes ready to go for reading many standard log files (sshd, Apache, etc) and is easily configurable for any other log files you want to scan for auth errors. Even though Fail2Ban is great at reducing the rate of incoming failed authentication requests, it is only one step in securing your host. 
 
-> Having a secure authentication set up is recommended along side to reduce the risk of a nefarious user gaining access to your system.
-{: .prompt-tip }
+<Aside type="tip">
+  Having a secure authentication set up is recommended along side to reduce the risk of a nefarious user gaining access to your system.
+</Aside>
 
-In my previous post, [SSH Login Logging to Discord via Webhooks](/posts/2022/07/02/LoggingSSHtoDiscord/), we set up `pam.d` to log SSH logins to Discord over a webhook. We can also do this with Fail2Ban using a custom action. If you already have Fail2Ban installed you can __[skip ahead](#configuring-fail2ban)__ to the configuration.
+In my previous post, [SSH Login Logging to Discord via Webhooks](/posts/2022/07/02/loggingsshtodiscord/), we set up `pam.d` to log SSH logins to Discord over a webhook. We can also do this with Fail2Ban using a custom action. If you already have Fail2Ban installed you can __[skip ahead](#configuring-fail2ban)__ to the configuration.
 
-# Installing Fail2Ban
+## Installing Fail2Ban
 
-> I use Ubuntu Server as my main linux distribution, so all my commands are geared toward it.
-{: .prompt-info }
+<Aside type="note">
+  I use Ubuntu Server as my main linux distribution, so all my commands are geared toward it.
+</Aside>
 
 First update your package repositories
 
-```shell
+```shell showLineNumbers=false
 sudo apt update
 ```
-{: .nolineno }
 
 Then install the Fail2Ban package
 
-```shell
+```shell showLineNumbers=false
 sudo apt install fail2ban
 ```
-{: .nolineno }
 
 Now verify if Fail2Ban was installed correctly you can check the status of the `fail2ban` service. Since it is not configured yet, it won't be running.
 
-```shell
+```shell showLineNumbers=false
 systemctl status fail2ban.service
 ```
-{: .nolineno }
 
-![Fail2Ban Service Status](/src/assets/series/discord-logging/discord-fail2ban-status.jpg){: .shadow }
+![Fail2Ban Service Status](/src/assets/posts_images/2022/08/09/discord-fail2ban-status.jpg)
 _Output of the `systemctl status` command showing the status of the Fail2Ban service_
 
-# Configuring Fail2Ban
+## Configuring Fail2Ban
 
 Now that Fail2Ban is installed we can configure it to log to Discord. First let's create our `/etc/fail2ban/jail.local` to tell Fail2Ban what to do.
 
-> The default file (`/etc/fail2ban/jail.conf`) contains all the default supported monitoring points (Jails)
-{: .prompt-info }
+<Aside type="note">
+  The default file (`/etc/fail2ban/jail.conf`) contains all the default supported monitoring points (Jails)
+</Aside>
 
-```shell
+```shell showLineNumbers=false
 sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 # using -l with nano gives you line numbers making it easier to read files.
 sudo nano -l /etc/fail2ban/jail.local
 ```
-{: .nolineno }
 
 Hit `CTRL`+`W` and type "bantime.increment" and hit `ENTER`. Uncomment the line by deleted the `#` at the beginning of it and set the value to `true`.
 
 *bantime.icrement example:*
 
-```conf
+```ini title="jail.local"
 # "bantime.increment" allows to use database for searching of previously banned ip's to increase a
 # default ban time using special formula, default it is banTime * 1, 2, 4, 8, 16, 32...
 bantime.increment = true
 ```
-{: file="jail.local" }
 
 Hit `CTRL`+`W` and type "ignoreip" and hit `ENTER`. Uncomment the line and verify that the IPs listed are the local IPs `127.0.0.1/8 ::1`. Then add a space at the end and add your local network subnet. 
 
 *ignoreip example:*
 
-```conf
+```ini title="jail.local"
 # "ignoreip" can be a list of IP addresses, CIDR masks or DNS hosts. Fail2ban
 # will not ban a host which matches an address in this list. Several addresses
 # can be defined using space (and/or comma) separator.
 ignoreip = 127.0.0.1/8 ::1 10.9.9.0/24 10.8.8.0/24
 ```
-{: file="jail.local" }
 
 Hit `CTRL`+`w` again and search for "sshd".
 
 Replace:
 
-```conf
+```ini title="jail.local"
 port    = ssh
 logpath = %(sshd_log)s
 backend = %(sshd_backend)s
 ```
-{: file="jail.local" }
 
 With:
 
-```conf
+```ini title="jail.local"
 enabled = true
 action = discord_notifications
          iptables-allports
@@ -110,22 +111,20 @@ port    = ssh
 logpath = %(sshd_log)s
 backend = %(sshd_backend)s
 ```
-{: file="jail.local" }
 
 Hit `CTRL`+`x` and then `y` to save and close the `jail.local` file.
 
 ## Creating the Discord Action
 
-Now that we have our `/etc/fail2ban/jail.local` file we can create the `/etc/fail2ban/action.d/discord_notifications.conf` action. First we need to get a webhook URL from Discord. To do this open Discord and navigate to the channel settings of the channel you want to log to. Open the integration settings and create a webhook. Give it a name you'll recognize and copy the url.
+Now that we have our `/etc/fail2ban/jail.local` file we can create the `/etc/fail2ban/action.d/discord_notifications.conf` action. First we need to get a webhook URL from Discord. To do this open Discord and navigate to the channel settings of the channel you want to log to. Open the integration settings and create a webhook. Give it a name you'll recognize and copy the URL.
 
-```shell
+```shell showLineNumbers=false
 sudo nano /etc/fail2ban/action.d/discord_notifications.conf
 ```
-{: .nolineno }
 
 Copy the following contents into the file:
 
-```conf
+```ini title="discord_notifications.conf"
 # discord_notifications.conf
 # Fail2Ban Discord Webhook Action
 # Updated By: Alex from https://blog.alexsguardian.net
@@ -163,100 +162,94 @@ name = default
 webhook = <discord_webhook_url>
 hostname = <hostname>
 ```
-{: file="discord_notifications.conf" }
 
-> The above file is an edited version of the one edited by GilbN over at [https://technicalramblings.com](https://technicalramblings.com)!
-{: .prompt-info }
+<Aside type="note">
+  The above file is an edited version of the one edited by GilbN over at [https://technicalramblings.com](https://technicalramblings.com)!
+</Aside>
 
-Replace `<discord_webhook_url>` with the full webhook url you created earlier. Then update the `<hostname>` with the name of the host you are running fail2ban on.
+Replace `<discord_webhook_url>` with the full webhook URL you created earlier. Then update the `<hostname>` with the name of the host you are running fail2ban on.
 
 Example:
 
-```conf
+```ini title="discord_notifications.conf" 
 # Discord Webhook URL
 webhook = https://discord.com/api/webhooks/17590182726070/AUJHWITUGHAIWUTYIAYWIT27617-Adg-hawuthawuhgiautgwaitgawiut
 hostname = lab_host_1
 ```
-{: file="discord_notifications.conf" }
 
 Hit `CTRL`+`x` then `y` to save and close the file.
 
 # Starting and Testing Fail2Ban
 
-With everything configured we can now start up the fail2ban service and then check it's status.
+With everything configured we can now start up the fail2ban service and then check its status.
 
-```shell
+```shell showLineNumbers=false
 sudo systemctl start fail2ban.service
 systemctl status fail2ban.service
 ```
-{: .nolineno }
 
-![Fail2Ban Service Status](/src/assets/series/discord-logging/discord-fail2ban-status2.jpg){: .shadow }
+![Fail2Ban Service Status](/src/assets/posts_images/2022/08/09/discord-fail2ban-status2.jpg)
 _Output of the `systemctl status` command showing the running status of the Fail2Ban service_
 
 In your Discord channel you should see a new message from your webhook user stating that the "[sshd] Jail has started" for your host.
 
-![Fail2Ban Jail Started](/src/assets/series/discord-logging/discord-fail2ban-started.jpg){: .shadow }
+![Fail2Ban Jail Started](/src/assets/posts_images/2022/08/09/discord-fail2ban-started.jpg)
 _Discord channel message stating that the [sshd] jail has started_
 
-Now to test Fail2Ban (without another host/network) we need to edit our `Jail.local`{: .filepath } config file again and remove our IP address from the `ignoreip` list as well as update the ban time so we don't have to wait long.
+Now to test Fail2Ban (without another host/network) we need to edit our `Jail.local` config file again and remove our IP address from the `ignoreip` list as well as update the ban time so we don't have to wait long.
 
-```shell
+```shell showLineNumbers=false
 sudo nano /etc/fail2ban/jail.local
 ```
-{: .nolineno }
 
 Hit `CTRL`+`w` and type "ignoreip =" then hit `ENTER`
 
 Edit the line and remove your ip subnet so it looks like the following:
 
-```conf
+```ini title="jail.local"
 # "ignoreip" can be a list of IP addresses, CIDR masks or DNS hosts. Fail2ban
 # will not ban a host which matches an address in this list. Several addresses
 # can be defined using space (and/or comma) separator.
 ignoreip = 127.0.0.1/8 ::1
 ```
-{: file="jail.local" }
 
 Hit `CTRL`+`w` again and type "bantime =". Change the line to "30s".
 
 *bantime example:*
 
-```conf
+```ini title="jail.local"
 # "bantime" is the number of seconds that a host is banned.
 bantime  = 30s
 ```
-{: file="jail.local" }
 
 Hit `CTRL`+`x` then `y` to save and close the file. Now restart the fail2ban service.
 
-```shell
+```shell showLineNumbers=false
 sudo systemctl restart fail2ban.service
 ```
-{: .nolineno }
 
-You will see two notifications in your Discord channel. One stating the "[sshd] jail stopped" and then a follow up one stating "[sshd] jail started."
+You will see two notifications in your Discord channel. One stating the "[sshd] jail stopped" and then a follow-up one stating "[sshd] jail started."
 
-![Fail2Ban Jail Restart](/src/assets/series/discord-logging/discord-fail2ban-restarted.jpg){: .shadow }
+![Fail2Ban Jail Restart](/src/assets/posts_images/2022/08/09/discord-fail2ban-restarted.jpg)
 _Discord channel messages stating that the [sshd] jail has stopped and started_
 
-> **PROCEED WITH CAUTION!**
->
-> If you miss configure the settings you can ban yourself for 10m by default... or permanently. If this is on a machine with the ability for physical access you can unban yourself by running:
-> `sudo fail2ban-client unban <ip>`
-{: .prompt-danger }
+<Aside type="danger" title="PROCEED WITH CAUTION!">
+  If you miss configure the settings you can ban yourself for 10m by default... or permanently. If this is on a machine with the ability for physical access you can unban yourself by running:
+
+  `sudo fail2ban-client unban <ip>`
+</Aside>
 
 Open a new terminal session on a different device (or the one you are using already if you are not on the device using fail2ban) and open a new ssh session. 
 
-Try and login as `root` a few times with incorrect info. By default its 5 times before a ban happens.
+Try and login as `root` a few times with incorrect info. By default, its 5 times before a ban happens.
 
-```shell
+```shell showLineNumbers=false
 ssh root@ip
 ```
 
 You should see a ban message show up in your Discord channel and then 30s later an unban message.
 
-![Discord Fail2Ban Ban/Unban Messages](/src/assets/series/discord-logging/discord-fail2ban-ban.jpg)
+![Discord Fail2Ban Ban/Unban Messages](/src/assets/posts_images/2022/08/09/discord-fail2ban-ban.jpg)
 _Discord channel messages showing ban and unban of an IP_
 
 Once you confirm it is working you can re-edit your `/etc/fail2ban/jail.local` config file and update the `bantime =` option back to the value you want (default is `10m` though, I usually set it for `24h`). Also make sure to update `ignoreip =` to include your subnet / IP again.
@@ -265,17 +258,15 @@ Once you confirm it is working you can re-edit your `/etc/fail2ban/jail.local` c
 
 If you want to get an @ notification when a host is banned you can update the `/etc/fail2ban/action.d/discord_notifications.conf` action to include an @ in the payload. To do this edit the file and replace:
 
-```conf
+```ini title="discord_notifications.conf" showLineNumbers=false
 -d '{"username":"Fail2Ban", "content":":bell: <hostname> - **[<name>]** **BANNED** IP: `<ip>` for <bantime> hours after **<failures>** failure(s). Here is some info about the IP: https://db-ip.com/<ip>. Unban by running: `fail2ban-client unban <ip>`"}'
 ```
-{: file="discord_notifications.conf" }
 
 with:
 
-```conf
+```ini title="discord_notifications.conf" showLineNumbers=false
 -d '{"username":"Fail2Ban", "content":"<@your-discord-user-id> :bell: <hostname> - **[<name>]** **BANNED** IP: `<ip>` for <bantime> hours after **<failures>** failure(s). Here is some info about the IP: https://db-ip.com/<ip>. Unban by running: `fail2ban-client unban <ip>`"}'
 ```
-{: file="discord_notifications.conf" }
 
 Make sure to replace the `<@your-discord-user-id>` with your actual ID. If you do not know how to obtain this you can read the Discord docs, __[here](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-#:~:text=1%20Make%20sure%20you%20have%20Developer%20mode%20enabled.,...%205%20Obtaining%20IDs%20-%20Mobile%20App.%20)__, for more info.
 

@@ -19,6 +19,7 @@ cover:
   alt: Image displaying the Forgejo logo.
   image: /public/covers/2024/upgradingforgejo_banner.webp
 draft: false
+slug: posts/2024/06/03/upgradingforgejo
 ---
 
 import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
@@ -123,13 +124,13 @@ Currently, Forgejo supports the following directories (under `/appdata`) for obj
 
 As you can see in the table above there are a few storage directories missing. Mainly repositories. Since repositories do not work well in object storage they are unsupported. Which means they will still be living on one of my hosts temporarily until I finalize my cross cluster storage solution. In order migrate the storage to MinIO, I first need to create a bucket (named `forgejo`), an Access Identity, and an ACL for it.
 
-```text title="access-credentials"
+```text title="access-credentials" showLineNumbers=false
 Access_key: O3n9bNhrbadkeyAGKOuhIUzMGF
 Secret_key: czgQT1fb1l3GD2nRQEPebadsecretbWG0xGIu20hjOeBfoSGo
 ```
 
 
-```json title="Access Key User Policy"
+```json title="Access Key User Policy" showLineNumbers=false
 {
  "Version": "2012-10-17",
  "Statement": [
@@ -161,15 +162,14 @@ Secret_key: czgQT1fb1l3GD2nRQEPebadsecretbWG0xGIu20hjOeBfoSGo
 }
 ```
 
-
 The above ACL replaces the default one under the "Current User Policy" after enabling the "ON" switch for "Restrict beyond user policy" setting in `User > Access Keys > Create access key`. It limits the access key to the `forgejo` bucket. The bucket is also private by default, so I do not have to change the bucket ACL.
 
-![Create Access Key](/src/assets/posts_images/2024/06/upgradingforgejo/fj-create-access-key.webp)
+![Create Access Key](/src/assets/posts_images/2024/06/03/fj-create-access-key.webp)
 _MinIO Create Access Key with a custom user policy_
 
 Next was to upload the existing files to MinIO so that when Forgejo restarted with the new s3 config it would pick them back up. As you can see in the picture below there are a few absent directories. I decided to condense a few related directories into parent ones for my ease of use. Also, some of them do not exist yet and will be created when needed (e.g. packages/).
 
-![`forgejo` bucket dir 1](/src/assets/posts_images/2024/06/upgradingforgejo/fj-s3-dir_1.webp)
+![`forgejo` bucket dir 1](/src/assets/posts_images/2024/06/03/fj-s3-dir_1.webp)
 _Example MinIO bucket directory layout_
 
 My current s3 bucket directory layout:
@@ -189,7 +189,6 @@ My current s3 bucket directory layout:
 With MinIO ready to go, all I had to do was update the Forgejo container environment variables for the MinIO connection and re-deploy. Forgejo environment variables can be defined using the `env -> ini` notation. So in your `app.ini` you have sections that are labeled, such as '[security].' In order to update the INI value for say, 'INSTALL_LOCK', you'd need to define it as `FORGEJO__security__INSTALL_LOCK`.
 
 As you can see in the example snippet file below, I am defining the MinIO connection information, as well as, where to look for specific directories in the bucket.
-
 
 <Tabs>
   <TabItem label="MinIO Env Variables">
@@ -214,7 +213,7 @@ As you can see in the example snippet file below, I am defining the MinIO connec
         - FORGEJO__storage.actions_log__MINIO_BASE_PATH="actions/logs/"
         - FORGEJO__actions.artifacts__MINIO_BASE_PATH="actions/artifacts/"
         # < truncated >
-```
+    ```
   </TabItem>
   <TabItem label="Full Compose Example">
   <Aside type="note">If you are curious about all the configuration options for Forgejo, you can check out the configuration cheat sheet [here](https://forgejo.org/docs/latest/admin/config-cheat-sheet/)</Aside>
@@ -337,14 +336,14 @@ As you can see in the example snippet file below, I am defining the MinIO connec
 
 With the environment variables updated, and a quick redeploy of Forgejo, I was up and running with object storage via MinIO! A quick trip into the `Site Administration > Configuration > Summary` in Forgejo shows that LFS was now using MinIO as seen in the below image.
 
-![FJ Site Admin Config for LFS](/src/assets/posts_images/2024/06/upgradingforgejo/fj-site-admin.webp)
+![FJ Site Admin Config for LFS](/src/assets/posts_images/2024/06/03/fj-site-admin.webp)
 _Forgejo site admin config showing LFS using MinIO_
 
 <br />
 
 ## Setting up Forgejo Actions
 
-![FJ Actions Meme](/src/assets/posts_images/2024/06/upgradingforgejo/fj_actions_meme.webp)
+![FJ Actions Meme](/src/assets/posts_images/2024/06/03/fj_actions_meme.webp)
 
 All jokes aside, Forgejo Actions is actually fairly decent. The runner is not production ready (according to [Forgejo themselves](https://code.forgejo.org/forgejo/runner#forgejo-runner)) but it works well enough that I am going all in on it for my lab. Setting up the action runner was fairly straight forward. It's got a similar setup process to the self-hosted GitHub runner.
 
@@ -401,7 +400,7 @@ services:
 
 As you can see above there are two `commands:`. `'/bin/sh -c "while : ; do sleep 1 ; done ;"'` starts up the runner container and does nothing. This allows you to enter the container via `docker exec` and run the registration command using the token generated in the Site Administration settings. After registering the container, it can be brought down and the current command can be replaced with the commented out one (`'/bin/sh -c "sleep 5; forgejo-runner daemon"'`). Then after redeploying the container the runner will become available in Forgejo globally. Having a global runner means it can be used by all repositories. Which for me works fine since my Forgejo instance is mainly private except for a few public repositories and a few GitHub mirrors.
 
-![FJ Manage Runners](/src/assets/posts_images/2024/06/upgradingforgejo/fj-manage-runners.webp)
+![FJ Manage Runners](/src/assets/posts_images/2024/06/03/fj-manage-runners.webp)
 
 With my runner online and working, I am now able to have workflows kick off from steps defined in files located in `.forgejo/workflows/`. The syntax is fairly similar to GitHub actions so most of the actions you can run there can run in Forgejo. The best part is I can mirror the action repositories and have my runner pull them directly from my Forgejo instance. The first thing I set up was Renovate Bot to keep my Docker images updated. The bot runs on a cron based workflow as seen below and opens a PR for image updates.
 
@@ -495,7 +494,7 @@ The bot is configured via a `renovate.json` file located in the root of the repo
 
 At the moment I have it scanning through all YAML files since I do not name my compose files `docker-compose.yml`. They are named as the service so: `forge.yml`, `caddy.yml`, `authelia.yml`, etc. They are also located in their own folders. This will be changing as I move more to GitOps but for now it's fine.
 
-![FJ Renovate PR](/src/assets/posts_images/2024/06/upgradingforgejo/fj-renovate-pr.webp)
+![FJ Renovate PR](/src/assets/posts_images/2024/06/03/fj-renovate-pr.webp)
 _PR Opened by Renovate Bot using the Forgejo Action workflow_
 
 ## Conclusion

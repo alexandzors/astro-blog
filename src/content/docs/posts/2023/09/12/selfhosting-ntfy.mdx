@@ -4,7 +4,6 @@ excerpt: I've decided to migrate away from Discord for notifications by using a 
 date: 2023-09-12
 lastUpdated: 2023-09-12
 tags:
-  - ntfy.sh
   - ntfy
   - homelab
   - discord
@@ -16,6 +15,7 @@ cover:
   alt: Image depicting the ntfy logo.
   image: /public/covers/2023/selfhosting-ntfy_banner.webp
 draft: false
+slug: posts/2023/09/12/selfhosting-ntfy
 ---
 
 import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
@@ -26,11 +26,11 @@ import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/compon
 
 <div style="display: flex; justify-content: center;"><a href="#what-is-ntfysh"> > Skip to the goods < </a></div>
 
-<p style="text-align: center;">So in my <a href="https://blog.alexsguardian.net/posts/2023/07/31/update">previous blog update post</a> I mentioned a few projects I was working on for posts on this blog. Well considering this post wasn't on the list it's time to toss the plan! Or did I really have a plan to begin with? :no_mouth:</p>
+<p style="text-align: center;">So in my <a href="/posts/2023/07/31/update">previous blog update post</a> I mentioned a few projects I was working on for posts on this blog. Well considering this post wasn't on the list it's time to toss the plan! Or did I really have a plan to begin with? :no_mouth:</p>
 
 <center>![Plan Meme](https://media.makeameme.org/created/heres-the-plan-745ca82725.jpg)</center>
 
-Currently, I have a few homelab notifications being sent to a "private" [Discord](https://discord.com) server. Evident by [Logging Fail2Ban to Discord](https://blog.alexsguardian.net/posts/2022/08/09/Fail2Ban+Discord/), [SSH Login Logging to Discord via Webhooks](https://blog.alexsguardian.net/posts/2022/07/02/LoggingSSHtoDiscord/), [GitHub Actions - Automating your Docker Builds with Diun](https://blog.alexsguardian.net/posts/2022/06/20/AutoGHActionsDiun/), a few others I was working on, etc. Now, I was going to keep going this route as it does make it extremely convenient since I already have the Discord app on most of my devices. However, I was talking to a [good friend of mine](https://github.com/StefanMarAntonsson), and he brought up a good point. 
+Currently, I have a few homelab notifications being sent to a "private" [Discord](https://discord.com) server. Evident by [Logging Fail2Ban to Discord](/posts/2022/08/09/fail2ban+discord/), [SSH Login Logging to Discord via Webhooks](/posts/2022/07/02/loggingsshtodiscord/), [GitHub Actions - Automating your Docker Builds with Diun](/posts/2022/06/20/autoghactionsdiun/), a few others I was working on, etc. Now, I was going to keep going this route as it does make it extremely convenient since I already have the Discord app on most of my devices. However, I was talking to a [good friend of mine](https://github.com/StefanMarAntonsson), and he brought up a good point. 
 
 > "My private server isn't exactly 'private' when it comes to someone else managing the data and, the only way to send a notification to Discord is by Webhook or a custom bot. Also, sometimes push notifications to mobile are SUPER delayed."
 
@@ -69,14 +69,14 @@ Before I dive in. There are a few things you will need setup before you can foll
 
 To get started, SSH to your host and install Docker. If you already have docker set up and ready you can [skip this section](#setting-up-ntfys-configuration). Run the following commands to install Docker's dependencies and prepare the host to install Docker.
 
-```shell
+```shell showLineNumbers=false
 sudo apt update
 sudo apt-get install ca-certificates curl gnupg
 ```
 
 Next add Docker's official GPG key.
 
-```shell
+```shell showLineNumbers=false
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
@@ -84,7 +84,7 @@ sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
 Now add Docker's apt repository to your source list.
 
-```shell
+```shell showLineNumbers=false
 echo \
   "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
   "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
@@ -93,13 +93,13 @@ echo \
 
 Then run apt update to update the sources again.
 
-```shell
+```shell showLineNumbers=false
 sudo apt-get update
 ```
 
 Finally install Docker.
 
-```shell
+```shell showLineNumbers=false
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
@@ -109,7 +109,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 
 If you do not want to run `sudo` in front of every docker command, you can add your user to the docker group.
 
-```shell
+```shell showLineNumbers=false
 sudo chmod -aG docker username
 ```
 
@@ -123,7 +123,7 @@ sudo chmod -aG docker username
 
 With Docker now setup we can pivot to getting ntfy up and running. Create the directories to house the `docker-compose.yml`, cache, `user.db`, and the `server.yml` config file.
 
-```shell
+```shell showLineNumbers=false
 sudo mkdir -p /opt/docker/ntfy
 sudo mkdir /opt/docker/ntfy/cache
 sudo mkdir /opt/docker/ntfy/config
@@ -132,36 +132,79 @@ sudo chown -R $USER:$USER /opt/docker
 
 Next create the `docker-compose.yml` file and edit it.
 
-```shell
+```shell showLineNumbers=false
 cd /opt/docker/ntfy
 nano docker-compose.yml
 ```
 
-```yaml title="docker-compose.yml"
-version: "3"
-services:
-  server:
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "500k"
-        max-file: "1"
-    image: binwiederhier/ntfy
-    command: serve
-    environment:
-      - TZ=America/New_York
-    user: ${UID}:$(id -g)
-    volumes:
-      - /opt/docker/ntfy/cache:/var/cache/ntfy
-      - /opt/docker/ntfy/config:/etc/ntfy
-    ports:
-      - 80:80
-```
+<Tabs>
+  <TabItem label="docker-compose.yml">
+    ```yaml
+    services:
+      server:
+        restart: always
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "500k"
+            max-file: "1"
+        image: binwiederhier/ntfy
+        command: serve
+        environment:
+          - TZ=America/New_York
+        user: ${UID}:$(id -g)
+        volumes:
+          - /opt/docker/ntfy/cache:/var/cache/ntfy
+          - /opt/docker/ntfy/config:/etc/ntfy
+        ports:
+          - 80:80
+    ```
+  </TabItem>
+  <TabItem label="Environment Example">
+    If you do not want to mount the server.yml file for configuration, you can use environment variables to configure ntfy instead.
+    ```yml
+    services:
+      server:
+        restart: always
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "500k"
+            max-file: "1"
+        healthcheck:
+            test: ["CMD-SHELL", "wget -q --tries=1 http://localhost:80/v1/health -O - | grep -Eo '\"healthy\"\\s*:\\s*true' || exit 1"]
+            interval: 60s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        image: binwiederhier/ntfy
+        command: serve
+        user: ${UID}:$(id -g)
+        environment:
+          - TZ=America\New_York
+          - NTFY_BASE_URL=https://ntfy.example.com
+          - NTFY_DEFAULT_HOST=https://ntfy.example.com
+          - NTFY_LISTEN_HTTP=:80
+          - NTFY_CACHE_FILE=/var/cache/ntfy/cache.db
+          - NTFY_BEHIND_PROXY=true
+          - NTFY_ATTACHMENT_CACHE_DIR=/var/cache/ntfy/attachments
+          - NTFY_KEEPALIVE_INTERVAL=45s
+          - NTFY_AUTH_FILE=/etc/ntfy/user.db
+          - NTFY_AUTH_DEFAULT_ACCESS=deny-all
+          - NTFY_WEB_ROOT=disable
+          - NTFY_LOG_LEVEL=debug
+        volumes:
+          - /opt/docker/ntfy/cache:/var/cache/ntfy
+          - /opt/docker/ntfy/config:/etc/ntfy
+        ports:
+          - 80:80
+    ```
+  </TabItem>
+</Tabs>
 
 Hit `CTRL`+ `X` then `Y` to save your changes and close nano. Now do the same but for a file called `server.yml`.
 
-```shell
+```shell showLineNumbers=false
 cd config/
 nano server.yml
 ```
@@ -198,7 +241,7 @@ For now, we will leave the web-root enabled to verify ntfy is running correctly.
 
 Change directory back to the parent directory for ntfy where the `docker-compose.yml` file is and deploy ntfy.
 
-```shell
+```shell showLineNumbers=false
 cd /opt/docker/ntfy
 docker compose up -d
 ```
@@ -250,7 +293,7 @@ If you are not using a web server to serve ntfy, you can hit the web UI at the I
 
 Now that we have ntfy up and being served we can lock it down. First we need to disable the web app (skip this if you want to use the web app) since we won't be using it. Return to the `server.yml` file and uncomment the `web-root` line. Your file should look similar to below.
 
-```yml title="server.yml Example"
+```yml title="server.yml Example" showLineNumbers=false
 default-host: "https://notify.yourdomain.com"
 base-url: "https://notify.yourdomain.com"
 listen-http: ":80"
@@ -276,7 +319,7 @@ Since we already have the `auth-file` and `auth-default-access` set, we can skip
   If you do not know your container name you can use `docker ps | grep ntfy` to list out all running containers and then grep the output for ntfy. 
 </Aside>
 
-```shell
+```shell showLineNumbers=false
 docker exec -it ntfy-server-1 /bin/sh
 ntfy user add yourusername
 ```
@@ -286,7 +329,7 @@ Once inside the container invoke the ntfy cli and add your first user.
 ![Adding ntfy user](/src/assets/posts_images/2023/09/12/ntfy_user_add.webp)
 _Example of creating a user using ntfy cli_
 
-```shell
+```shell showLineNumbers=false
 ntfy user add nameofuser
 ```
 
@@ -295,7 +338,7 @@ Invoking this command with a username will auto prompt you to create a password 
 ![Setting user access](/src/assets/posts_images/2023/09/12/ntfy_user_access.webp)
 _Example of setting user access using ntfy cli_
 
-```shell
+```shell showLineNumbers=false
 ntfy access testuser ssh_logins wo
 ```
 
@@ -312,7 +355,7 @@ Now at this stage the user can be used to post messages to the topic. Though, to
 ![Creating access token](/src/assets/posts_images/2023/09/12/ntfy_user_token.webp)
 _Example of creating user access token using ntfy cli_
 
-```shell
+```shell showLineNumbers=false
 ntfy token add testuser
 ```
 
@@ -332,7 +375,7 @@ Type `exit` to leave the container interface.
 As an example for this post, I will only be covering ssh login/logout notifications to keep it short. I will include some extra scripts for other services in the [blog-files](https://github.com/alexandzors/blog-files/tree/main/posts_images/selfhosting-ntfy) repository. Now, SSH into the host you want to send notifications from and create the script file in `/bin`. Mark it executable and then edit it.
 
 
-```shell
+```shell showLineNumbers=false
 # Create the script file
 sudo touch /bin/sshd-login-ntfy
 # Mark it as executable
@@ -407,13 +450,13 @@ fi
 
 Next we need to edit the sshd file for pam.d. 
 
-```shell
+```shell showLineNumbers=false
 sudo nano /etc/pam.d/sshd
 ```
 
 And drop this into the bottom of the file.
 
-```shell
+```shell showLineNumbers=false
 session   optional   pam_exec.so /bin/sshd-login-ntfy
 ```
 
@@ -444,7 +487,7 @@ On the app home screen, tap on the green "+" button and enter the name of the to
 
 We can send a notification message by either logging out of the host you used to set up ntfy (if you are doing this over ssh) or by logging into a host with the above [`sshd-login-ntfy`](#logging-ssh-loginlogouts-to-ntfy) script active. Or simply running:
 
-```shell
+```shell showLineNumbers=false
 curl -H "Title: ${HOSTNAME} -- ssh login" -u :token_here https://notify.yourdomain.com/ssh_logins -d "This is a test message"
 ```
 

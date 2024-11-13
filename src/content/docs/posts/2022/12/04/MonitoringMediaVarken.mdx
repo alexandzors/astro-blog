@@ -20,6 +20,7 @@ cover:
   alt: Image depicting a Grafana dashboard with the Varken logo.
   image: /public/covers/2022/MonitoringMediaVarken_banner.webp
 draft: false
+slug: posts/2022/12/04/MonitoringMediaVarken
 ---
 
 import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
@@ -32,7 +33,7 @@ import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/compon
   This post is currently using an *unsupported* custom dev build of Varken, that utilizes a pull request, which adds support for InfluxDB v2. It also is using a custom dashboard (created by me) that uses Flux queries instead of the old InfluxQL language. Both are not officially supported by the dev team at the moment. Varken stable and dev still use InfluxDB v1.8 which this post does not cover.
 </Aside>
 
-Have you ever wanted to easily monitor your backend apps that service your media server? Well if you are already running [InfluxDB](https://www.influxdata.com/) and [Grafana](https://grafana.com/) then do I have a cool utility for you! [Varken](https://github.com/Boerderij/Varken) is a utility app that lets you gather data from your backend media server applications and send this data to InfluxDB. You can then take this data and visualize it via Grafana. If you have followed my [Grafana guide](/posts/2022/07/22-Grafana-GettingStarted) series then getting this setup will be a breeze. If not make sure you already have InfluxDB and Grafana setup and communicating! You will also need one or more of the following applications installed, configured, and running to gather data from.
+Have you ever wanted to easily monitor your backend apps that service your media server? Well if you are already running [InfluxDB](https://www.influxdata.com/) and [Grafana](https://grafana.com/) then do I have a cool utility for you! [Varken](https://github.com/Boerderij/Varken) is a utility app that lets you gather data from your backend media server applications and send this data to InfluxDB. You can then take this data and visualize it via Grafana. If you have followed my [Grafana guide](/posts/2022/07/22/grafana-gettingstarted) series then getting this setup will be a breeze. If not make sure you already have InfluxDB and Grafana setup and communicating! You will also need one or more of the following applications installed, configured, and running to gather data from.
 
 - [Sonarr](https://sonarr.tv/)
 - [Radarr](https://radarr.video/)
@@ -56,27 +57,27 @@ In my case I have Sonarr, Radarr, and Tautulli running with [Plex](https://www.p
 
 This install will require some familiarity with git commands. If you are unfamiliar I will do my best to make this as easiest to follow as possible. Mainly we will be pulling the [Varken repository](https://github.com/Boerderij/Varken) locally and then building a custom docker image based off [PR#242](https://github.com/Boerderij/Varken/pull/242) (from [ǝuoqɹǝuuᴉp](https://github.com/Dinnerbone) of all people :) ) which adds InfluxDB v2 support. To get started, ssh to your docker host and create a new directory structure for Varken.
 
-```shell
+```shell showLineNumbers=false
 ssh user@host
 mkdir /opt/docker/varken
 ```
 
 Next create a new `.git` sub folder inside the new `varken` directory. This will house the clone of Varken's git repository.
 
-```shell
+```shell showLineNumbers=false
 mkdir /opt/docker/varken/.git
 ```
 
 Change directory to `.git` and clone the Varken repository.
 
-```shell
+```shell showLineNumbers=false
 cd /opt/docker/varken/.git
 git clone https://github.com/Boerderij/Varken.git
 ```
 
 Once this is done it should create a new sub folder called "Varken". Change directory to this new folder and run the following [commands](https://stackoverflow.com/a/30584951) <sup>thanks <sup>@timbo <sup>on <sup>stack overflow</sup></sup></sup></sup> to check out the PR with v2.0 support.
 
-```shell
+```shell showLineNumbers=false
 cd Varken
 git fetch origin pull/242/head:varken-influxdb2
 git checkout varken-influxdb2
@@ -84,7 +85,7 @@ git checkout varken-influxdb2
 
 Running these commands will first fetch the changes in PR #242 and then create a local branch called "varken-influxdb2". We can then check out this new branch to use the changes from the PR to build our custom container image.
 
-```shell
+```shell showLineNumbers=false
 docker build -t yourname/varken:influxdb2-dev
 ```
 
@@ -94,7 +95,7 @@ This will take a few minutes to complete depending on your system specs. Once it
 
 Once the build process is complete we can check to make sure it was added to Docker's local image store.
 
-```shell
+```shell showLineNumbers=false
 docker image ls | grep yourname/varken:influxdb2-dev
 ```
 
@@ -104,13 +105,13 @@ docker image ls | grep yourname/varken:influxdb2-dev
 
 Now that we have our container image ready we can quickly create our `docker-compose.yml` file for Varken. Make sure you are in the main `/opt/docker/varken/` directory.
 
-```shell
+```shell showLineNumbers=false
 cd /opt/docker/varken
 ```
 
 Then create the new docker compose file with the following information. Make sure to change `yourname` to the name you used above for the image.
 
-```shell
+```shell showLineNumbers=false
 nano docker-compose.yml
 ```
 
@@ -134,7 +135,7 @@ networks:
 ```
 
 <Aside type="tip">
-> If you did not follow my [Grafana guide](/posts/2022/07/22/Grafana-GettingStarted/) then you can omit the networking portion. (e.g. remove both `networks:` config options)
+> If you did not follow my [Grafana guide](/posts/2022/07/22/grafana-gettingstarted/) then you can omit the networking portion. (e.g. remove both `networks:` config options)
 </Aside>
 
 You can then save and close the file by hitting `CTRL + X` then `y`.
@@ -143,14 +144,14 @@ You can then save and close the file by hitting `CTRL + X` then `y`.
 
 Varken uses an [initialization file](https://en.wikipedia.org/wiki/INI_file) (`.ini`) to house its configuration, which we need to persistently mount to our Varken container. Change directory to the main Varken dir and then clone the example file from GitHub.
 
-```shell
+```shell showLineNumbers=false
 cd /opt/docker/varken
 wget https://raw.githubusercontent.com/Boerderij/Varken/develop/data/varken.example.ini .
 ```
 
 Next copy and rename the example file into `varken.ini` for Varken to use.
 
-```shell
+```shell showLineNumbers=false
 cp varken.example.ini varken.ini
 ```
 
@@ -178,7 +179,7 @@ At this point you will be shown your Maxmind key. Copy this key somewhere safe a
 
 With our Maxmind key in hand, we can now edit the `varken.ini` file. Switch back over to your terminal session and edit the `varken.ini` file.
 
-```shell
+```shell showLineNumbers=false
 nano varken.ini
 ```
 
@@ -319,7 +320,7 @@ get_missing_run_seconds = 300
 
 Now that we have the configuration file configured it's time to deploy Varken. To do this run the following command in the `/opt/docker/varken` directory.
 
-```shell
+```shell showLineNumbers=false
 docker compose up -d
 ```
 <Aside type="tip">
@@ -328,7 +329,7 @@ docker compose up -d
 
 To verify it is running: 
 
-```shell
+```shell showLineNumbers=false
 docker ps
 ```
 
@@ -336,7 +337,7 @@ docker ps
 
 To view the logs to verify Varken is sending data:
 
-```shell
+```shell showLineNumbers=false
 docker logs -f varken-varken-1
 ```
 

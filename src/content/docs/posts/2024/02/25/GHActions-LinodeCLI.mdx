@@ -19,6 +19,7 @@ cover:
   alt: Image displaying the GitHub Actions logo.
   image: /public/covers/2022/gh-actions_banner.webp
 draft: false
+slug: posts/2024/02/25/GHActions-LinodeCLI
 ---
 
 import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
@@ -154,7 +155,7 @@ done
 
 At the moment it's a pretty basic case switcher based on the options passed to it during runtime. For this to work I had to retrieve the firewall ID of my Cloud Firewall instance. This can be easily done by running the following curl command in a PowerShell or Linux terminal.
 
-```shell
+```shell showLineNumbers=false
 curl -H "Authorization: Bearer API_TOKEN_HERE"  https://api.linode.com/v4/networking/firewalls
 ```
 
@@ -162,66 +163,66 @@ curl -H "Authorization: Bearer API_TOKEN_HERE"  https://api.linode.com/v4/networ
 The output:
 ```json
 { 
-    "data": [
-        {
-            "id": 000000, 
-            "label": "Main", 
-            "created": "2021-10-14T06:47:49", 
-            "updated": "2024-02-18T23:18:32", 
-            "status": "enabled", 
-            "rules": { 
-                "inbound": [ 
-                    {
-                        "ports": "80, 443",
-                        "protocol": "TCP",
-                        "addresses": { 
-                            "ipv4": ["0.0.0.0/0"], 
-                            "ipv6": ["::/0"] 
-                        }, 
-                        "action": "ACCEPT",
-                        "label": "accept-inbound-HTTP" 
-                    },
-                    {
-                        "action": "ACCEPT",
-                        "addresses": { 
-                            "ipv4": ["1.2.3.4/32"]
-                        },
-                        "ports": "22",
-                        "protocol": "TCP", 
-                        "label": "accept-inbound-SSH",
-                        "description": null
-                    }
-                ],
-                "inbound_policy": "DROP",
-                "outbound": [], 
-                "outbound_policy": "ACCEPT"
+  "data": [
+    {
+      "id": 000000, 
+      "label": "Main", 
+      "created": "2021-10-14T06:47:49", 
+      "updated": "2024-02-18T23:18:32", 
+      "status": "enabled", 
+      "rules": { 
+        "inbound": [ 
+          {
+            "ports": "80, 443",
+            "protocol": "TCP",
+            "addresses": { 
+              "ipv4": ["0.0.0.0/0"], 
+              "ipv6": ["::/0"] 
+            }, 
+            "action": "ACCEPT",
+            "label": "accept-inbound-HTTP" 
+          },
+          {
+            "action": "ACCEPT",
+            "addresses": { 
+              "ipv4": ["1.2.3.4/32"]
             },
-            "tags": [], 
-            "entities": [
-                {
-                    "id": 0000000, 
-                    "type": "linode", 
-                    "label": "xxxxxxxx", 
-                    "url": "/v4/linode/instances/0000000"
-                },
-                {
-                    "id": 11111111, 
-                    "type": "linode", 
-                    "label": "xxxxxxxx", 
-                    "url": "/v4/linode/instances/11111111"
-                }, 
-                {
-                    "id": 22222222, 
-                    "type": "linode", 
-                    "label": "xxxxxxxx", 
-                    "url": "/v4/linode/instances/22222222"
-                }
-            ]
+            "ports": "22",
+            "protocol": "TCP", 
+            "label": "accept-inbound-SSH",
+            "description": null
+          }
+        ],
+        "inbound_policy": "DROP",
+        "outbound": [], 
+        "outbound_policy": "ACCEPT"
+      },
+      "tags": [], 
+      "entities": [
+        {
+          "id": 0000000, 
+          "type": "linode", 
+          "label": "xxxxxxxx", 
+          "url": "/v4/linode/instances/0000000"
+        },
+        {
+          "id": 11111111, 
+          "type": "linode", 
+          "label": "xxxxxxxx", 
+          "url": "/v4/linode/instances/11111111"
+        }, 
+        {
+          "id": 22222222, 
+          "type": "linode", 
+          "label": "xxxxxxxx", 
+          "url": "/v4/linode/instances/22222222"
         }
-    ],
-    "page": 1,
-    "pages": 1,
-    "results": 1
+      ]
+    }
+  ],
+  "page": 1,
+  "pages": 1,
+  "results": 1
 }
 ```
 

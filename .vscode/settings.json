@@ -2,5 +2,7 @@
     "ltex.additionalRules.languageModel": "en",
     "ltex.languageToolHttpServerUri": "http://cluster.lab:8010",
     "ltex.statusBarItem": true,
-    "ltex.completionEnabled": true
+    "ltex.completionEnabled": true,
+    "writeTimestamp.bCustomFormat": "yyyy-mm-dd HH:mm",
+    "writeTimestamp.aGMT": false
 }

@@ -1,26 +1,38 @@
 ---
 title: Deploying Jekyll on a Linode VM via GitHub Actions
-excerpt: Description
+excerpt: A bonus post for the GitHub Action series showing how to deploy jekyll to a Linode VM.
 date: 2022-08-15
 lastUpdated: 2022-08-15
 tags:
-  - TagName
+  - github
+  - github actions
+  - jekyll
+  - ci/cd
+  - automation
+  - workflows
+  - linode
 authors:
-  - name: Alex
-    title: Wizard
-    picture: https://avatars.githubusercontent.com/u/25626115?v=4
-    url: https://alexsguardian.net/
+  - alex
 featured: false
+cover:
+  alt: Image depicting the GitHub Actions logo.
+  image: /public/covers/2022/gh-actions_banner.webp
 draft: false
+slug: posts/2022/08/15/DeployJekyllLinode
 ---
 
+import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
 
+<sub>*FTC: Some links in this post may be income earning affiliate links.*</sub>
+<br />
+---
 
-In my GitHub Actions, "Getting your feet wet", guide series I went over how to [build a docker container](/posts/2022/06/12/AutoGHActionsDocker/), [automatically updating it](/posts/2022/06/20/AutoGHActionsDiun/) using a app called [Diun](https://crazymax.dev/diun/), [deploying the container update](/posts/2022/06/25/AutoGHDeployLinode/) to a VM in [Linode](https://linode.com), and [creating a releasable binary](/posts/2022/06/30/AutoGHBinary/). All based on the web server I use for my homelab, [Caddy](https://caddyserver.com). This post was not originally planned to be apart of the series but I am including it as an example of a more, "advanced", actions deployment. By default [Jekyll](https://jekyllrb.com/) deploys to [GitHub Pages](https://pages.github.com/) which is really nice if you do not want to spin up your own web server.
+In my GitHub Actions, "Getting your feet wet", guide series I went over how to [build a docker container](/posts/2022/06/12/autoghactionsdocker/), [automatically updating it](/posts/2022/06/20/autoghactionsdiun/) using an app called [Diun](https://crazymax.dev/diun/), [deploying the container update](/posts/2022/06/25/AutoGHDeployLinode/) to a VM in [Linode](https://linode.com), and [creating a releasable binary](/posts/2022/06/30/AutoGHBinary/). All based on the web server I use for my homelab, [Caddy](https://caddyserver.com). This post was not originally planned to be a part of the series, but I am including it as an example of a more, "advanced", actions deployment. By default, [Jekyll](https://jekyllrb.com/) deploys to [GitHub Pages](https://pages.github.com/) which is really nice if you do not want to spin up your own web server.
 
-For me though I wanted to host it myself. The process for this was mostly straight forward as Jekyll already includes the ability to self host. The diagram below demonstrates the GitHub Actions flow for both the default deployment to pages and my deployment to a Linode VM.
+For me though I wanted to host it myself. The process for this was mostly straight forward as Jekyll already includes the ability to self-host. The diagram below demonstrates the GitHub Actions flow for both the default deployment to pages and my deployment to a Linode VM.
 
-![Actions Workflow](/src/assets/series/gh-actions/gh-actions-jekyll.png){: .shadow }
+![Actions Workflow](/src/assets/posts_images/2022/08/15/gh-actions-jekyll.png)
 _Workflows for deploying Jekyll via GitHub Actions_
 
 If you want to use the actions file below you will need the following items completed beforehand.
@@ -29,7 +41,7 @@ If you want to use the actions file below you will need the following items comp
 * Have a VM running that is accessible by SSH from the internet (WAN).
     * I recommend [Linode](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5) if you are just starting out.
 * Have a user account created on the VM for actions to log into via SSH.
-    * You can check out my post, [here](/posts/2022/06/25/AutoGHDeployLinode/#setting-up-the-vm), which details this process.
+    * You can check out my post, [here](/posts/2022/06/25/autoghdeploylinode/#setting-up-the-vm), which details this process.
 * Have a domain registered and pointing to the public (WAN) IP of the VM.
 * Have a web server installed and setup to serve from the directory the blog will be in.
     * I am using [Caddy](https://caddyserver.com) to serve the blog directory.
@@ -42,10 +54,11 @@ If you want to use the actions file below you will need the following items comp
 
 GitHub Actions workflow for deploying the Jekyll blog:
 
-> I am using the [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) theme for Jekyll. The files / directories being copied in the build step may be different for the theme you are using! I was also having some odd issues so these file / directory copies may not be necessary.
-{: .prompt-tip }
+<Aside type="tip">
+  I am using the [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) theme for Jekyll. The files / directories being copied in the build step may be different for the theme you are using! I was also having some odd issues so these file / directory copies may not be necessary.
+</Aside>
 
-```yml
+```yml title="actions.yml"
 name: 'Deploy Blog'
 on:
   push:
@@ -156,11 +169,10 @@ jobs:
           title: '${{ github.workflow }}'
           description: '${{ github.workflow }} was triggered. It returned status: {{STATUS}}'
 ```
-{: file="actions.yml" }
 
 Workflow file for deleting artifacts to save GitHub storage space:
 
-```yml
+```yml title="delete_artifacts.yml"
 # trigger workflow to run after listed workflows are run
 name: 'Delete Old Artifacts'
 on:
@@ -179,57 +191,54 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           expire-in: 0 # Setting this to 0 will delete all artifacts
 ```
-{: file="delete_artifacts.yml" }
 
 Caddyfile example:
 
-```conf
+```bash title="Example Caddyfile"
 {
-        email email@email.com
-#       acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
-        debug
-        log {
-                output file /var/log/caddy/caddy.log {
-                        roll_size 12mb
-                        roll_keep 10
-                        roll_keep_for 24h
-                }
-                format json {
-                        message_key msg
-                        level_key debug
-                        time_key ts
-                        name_key name
-                        time_format wall
-                }
-        }
+  email email@email.com
+# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+  debug
+  log {
+    output file /var/log/caddy/caddy.log {
+      roll_size 12mb
+      roll_keep 10
+      roll_keep_for 24h
+    }
+    format json {
+      message_key msg
+      level_key debug
+      time_key ts
+      name_key name
+      time_format wall
+    }
+  }
 }
 
 (tls) {
-        tls {
-                dns cloudflare {env.CF_API_KEY}
-        }
+  tls {
+    dns cloudflare {env.CF_API_KEY}
+  }
 }
 
 blog.alexsguardian.net {
-        import tls
-        root * /opt/sites/blog/
-        file_server
-        handle_errors {
-                rewrite * /404.html
-                file_server
-        }
+  import tls
+  root * /opt/sites/blog/
+  file_server
+  handle_errors {
+    rewrite * /404.html
+    file_server
+  }
 }
 ```
-{: file="Caddyfile" }
 
 This post is merely an example for the [GitHub Actions](/guides/#github-actions) guide series. I actually use the above workflow to deploy this blog from GitHub, so it does work! If you have any questions, or a suggestion, feel free to reach out via a comment or email!
 
-> If you are using the Linode Cloud Firewall, check out [my post](/posts/2024/02/25/GHActions-LinodeCLI/) about using Linode CLI to update it during the workflow run!
-{: .prompt-info }
+<Aside type="tip">
+  If you are using the Linode Cloud Firewall, check out [my post](/posts/2024/02/25/ghactions-linodecli/) about using Linode CLI to update it during the workflow run!
+</Aside>
 
 ----
 ## Affiliate Links
 
 - [Linode](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5)💜
-
-<sub>*FTC: Some links in this post are income generating.*</sub>

@@ -17,6 +17,7 @@ cover:
   alt: Image depicting the pgAdmin and Authelia logos.
   image: /public/covers/2023/pgadmin-authelia_banner.webp
 draft: false
+slug: posts/2023/10/02/pgadmin-authelia
 ---
 
 import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
@@ -37,7 +38,7 @@ I will also be assuming that you already have a user/users configured in Autheli
 
 In order to set up [OpenID Connect (OIDC)](https://www.authelia.com/configuration/identity-providers/open-id-connect/) in Authelia we need to create a few secrets and a key/cert pair. To do this run the following commands while substituting `yourdomain.com` with the root domain you are using for Authelia as necessary. Copy the outputs and save them for later.
 
-```shell
+```shell showLineNumbers=false
 docker run --rm authelia/authelia sh -c "authelia crypto certificate rsa generate --common-name yourdomain.com && cat private.pem && cat public.crt"
 ```
 
@@ -48,7 +49,7 @@ _Example output for private.key and public.crt_
 
 Next generate the hmac secret.
 
-```shell
+```shell showLineNumbers=false
 docker run --rm authelia/authelia:latest authelia crypto rand --length 128 --charset alphanumeric
 ```
 
@@ -57,7 +58,7 @@ _Example of a hmac secret_
 
 Finally, generate the client secret for pgAdmin. I left the charset as alphanumeric as some applications do not like special characters in client secrets.
 
-```shell
+```shell showLineNumbers=false
 docker run --rm authelia/authelia:latest authelia crypto rand --length 128 --charset alphanumeric
 ```
 
@@ -117,11 +118,11 @@ Save and close the file.
 
 Create a new directory in Authelia's called `.secrets`. Then create the following files with the data generated above into the new directory.
 
-```shell
+```shell showLineNumbers=false
 mkdir ~/authelia/.secrets
 ```
 
-```txt title="oidc_issuer_cert"
+```txt title="oidc_issuer_cert" showLineNumbers=false
 -----BEGIN CERTIFICATE-----
 MIIDFzCCAf+gAwIBAgIQXxWNgME/RwUZ/MjcU704xzANBgkqhkiG9w0BAQsFADAs
 MREwDwYDVQQKEwhBdXRoZWxpYTEXMBUGA1UEAxMOeW91cmRvbWFpbi5jb20wHhcN
@@ -143,7 +144,7 @@ CDO3dIxzE01a50t4sKuJh+ubEGlxCVn9rT4e
 -----END CERTIFICATE-----
 ```
 
-```txt title="oidc_private_key"
+```txt title="oidc_private_key" showLineNumbers=false
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAycwMrzAQTbC3nxofwAOIkoVMBUqPFO5dC+iXlcdr3+bs7gKs
 Fckk2mGExgJ0c/SqU2pQlpiNs34GvF9YE9fYwnCsF/AknMLCrJdPk1PyPi9/lF16
@@ -173,7 +174,7 @@ NkvEX4Ab75j4AUfMq5qLxhtmf70vDGax2utm8qqnJy6gbAsxGcyDsQ==
 -----END RSA PRIVATE KEY-----
 ```
 
-```txt title="oidc_hmac_secret"
+```txt title="oidc_hmac_secret" showLineNumbers=false
 aI84lHge7keZhU7sh7gLZgCUcAIpr9qQruya5O8mkcd5UlZ9tubi4fQs8Ps1peQNbahHaTCQ0OOEftEB6q5E2Hk8WLozX6xeBjhAtqihWZcYnwSBuUeAs2jwCus4uc2S
 ```
 
@@ -247,7 +248,7 @@ _Example of the pgAdmin sign in flow with Authelia 2FA and master password promp
 
 Hopefully this post keeps someone from hitting a wall with pgAdmin OAuth config like I did initially. I probably won't be uploading any files to the [blog-files](https://github.com/alexandzors/blog-files) repository since this isn't really a proper "guide" post that I normally make. Though, like always, if you run into issues feel free to reach out via the comments, or email!
 
-*Oh, and you bet I will be looking for a way to have notifications sent to [ntfy](/posts_images/2023/09/12/selfhosting-ntfy/) on successful authentications via Authelia.. haha........*
+*Oh, and you bet I will be looking for a way to have notifications sent to [ntfy](/posts/2023/09/12/selfhosting-ntfy/) on successful authentications via Authelia.. haha........*
 
 ### Resources
 

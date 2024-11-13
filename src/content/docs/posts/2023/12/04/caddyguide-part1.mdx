@@ -14,6 +14,7 @@ cover:
   alt: Image depicting the Caddy logo on a technical wiring background.
   image: /public/covers/2023/caddy-series_banner.webp
 draft: false
+slug: posts/2023/12/04/caddyguide-part1
 ---
 
 import { FileTree, Steps, Tabs, TabItem, Aside, Card } from "@astrojs/starlight/components"
@@ -85,12 +86,13 @@ Like I stated earlier, we will be using [Docker](https://docker.com) to run all 
 
 <Card title="Wikipedia: What is Docker?">
   <u>Docker</u> is a set of platform as a service (PaaS) products that use OS-level virtualization to deliver software in packages called <u>containers</u>. The service has both free and premium tiers. The software that hosts the containers is called <u>Docker Engine</u>.
+
   [https://en.wikipedia.org/wiki/Docker_(software)](https://en.wikipedia.org/wiki/Docker_(software))
 </Card>
 
 Now ssh to your host and install Docker.
 
-```shell
+```shell showLineNumbers=false
 ssh youruser@host
 
 # Install Docker Dependencies
@@ -106,14 +108,9 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
-<Card title="Wikipedia: What is Docker?">
-  <u>Docker</u> is a set of platform as a service (PaaS) products that use OS-level virtualization to deliver software in packages called <u>containers</u>. The service has both free and premium tiers. The software that hosts the containers is called <u>Docker Engine</u>.
-  [https://en.wikipedia.org/wiki/Docker_(software)](https://en.wikipedia.org/wiki/Docker_(software))
-</Card>
-
 Now update the apt sources and install Docker-CE
 
-```shell
+```shell showLineNumbers=false
 sudo apt update
 # Install Docker
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -130,7 +127,7 @@ Now, I like to create a dedicated user to run containers in my lab. This is not 
   **<u>DO NOT</u> do this in a production type environment or one that has sensitive data stored on the host.... please...**
 </Aside>
 
-```shell
+```shell showLineNumbers=false
 sudo groupadd docker
 sudo usermod -aG docker $USER
 ```
@@ -145,7 +142,7 @@ _Help output from running `docker` with no parameters_
 
 Next we need to create the network that we will use for communications between Cloudflare tunnel and Caddy.
 
-```shell
+```shell showLineNumbers=false
 docker network create cf-internal-net
 ```
 
@@ -155,7 +152,7 @@ For this I will be using my [custom Docker image](https://hub.docker.com/r/alexa
 
 Create the config directories and files for Caddy.
 
-```shell
+```shell showLineNumbers=false
 mkdir ~/caddy ~/caddy/.data ~/caddy/configs ~/cloudflare
 touch ~/caddy/Caddyfile ~/caddy/configs/cloudflare-tls ~/caddy/configs/cloudflare-clientip-map ~/caddy/cf.sh ~/caddy/reload.sh ~/caddy/caddy.yml
 ```
@@ -165,7 +162,7 @@ _New Docker network and config directories_
 
 Change directory to the new Caddy directory we created above and edit the file called `caddy.yml`.
 
-```shell
+```shell showLineNumbers=false
 cd ~/caddy
 
 nano caddy.yml
@@ -261,32 +258,32 @@ rm -f "$tmp_file"
 
 After saving `cf.sh` edit your cron schedules and add the following schedule.
 
-```shell
+```shell showLineNumbers=false
 crontab -e
 ```
 
 After selecting your editor for cron, add the following to the bottom of the schedules list. Make sure to update the path to the location of `cf.sh`.
 
-```shell
+```shell showLineNumbers=false
 @hourly bash /path/to/caddy/cf.sh
 ```
 
 Then mark both scripts as executable.
 
-```shell
+```shell showLineNumbers=false
 chmod +x ./cf.sh
 chmod +x ./reload.sh
 ```
 
 Now run the `cf.sh` script to generate the `cloudflare-proxies` file in `/configs/`. 
 
-```shell
+```shell showLineNumbers=false
 bash cf.sh
 ```
 
 If successful you should be able to `cat` the file and get a list of IPs that match the ones listed [here](https://www.cloudflare.com/ips/) under the IPv4 section.
 
-```shell
+```shell showLineNumbers=false
 alexander@caddy-guide:~/caddy$ bash cf.sh
 alexander@caddy-guide:~/caddy$ cat ./configs/cloudflare-proxies
 trusted_proxies 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22
@@ -354,7 +351,7 @@ nano ~/caddy/.env
 
 Add the following to the file.
 
-```dotenv title=".env"
+```dotenv title=".env" showLineNumbers=false
 CLOUDFLARETOKEN=RX1uC0kAWvXVq1R_ONrWxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
@@ -364,14 +361,14 @@ Make sure to replace `RX1uC0kAWvXVq1R_ONrWxxxxxxxxxxxxxxxxxxxxxxxxx` with the to
 
 With Caddy's config prepped and ready to deploy we focus on prepping for Cloudflare Tunnel. This one will be easy as most of the config is done via Cloudflare's Zero Trust dashboard. Though, we will still need a directory to house our docker compose config, and an env file for the tunnel on the host. Create a new directory called Cloudflare as well as the docker compose config file and the .env file.
 
-```shell
+```shell showLineNumbers=false
 mkdir ~/cloudflare
 touch ~/cloudflare/cloudflare.yml ~/cloudflare/.env
 ```
 
 Next edit the `cloudflare.yml` file and copy the following into it.
 
-```shell
+```shell showLineNumbers=false
 cd ~/cloudflare
 nano cloudflare.yml
 ```
@@ -442,7 +439,7 @@ _Local Tunnel Connecting to Cloudflare_
 
 Once the tunnel is connected. Hit `CTRL + C` to terminate the Cloudflare container. Then re-run `docker compose -f cloudflare.yml up -d`. The `-d` argument runs the container in 'detach mode' so that it can run in the background. By running `docker ps` you can verify if it is up and running.
 
-```shell
+```shell showLineNumbers=false
 alexander@caddy-guide:~/cloudflare$ docker ps
 CONTAINER ID   IMAGE                           COMMAND                  CREATED         STATUS         PORTS     NAMES
 e9e03f600a69   cloudflare/cloudflared:latest   "cloudflared --no-au…"   9 minutes ago   Up 2 seconds             cloudflare-tunnel-1
@@ -494,7 +491,7 @@ This setting is necessary since we will be using HTTPS all the way through to Ca
 
 Head back over to your host and navigate to the `/caddy` directory. Since we already set up the [extra config files earlier](#preparing-for-caddy) we just need to configure our `Caddyfile` now. Edit your `Caddyfile` and add the following to it.
 
-```shell
+```shell showLineNumbers=false
 cd ~/caddy
 nano Caddyfile
 ```
@@ -545,7 +542,7 @@ Caddyfile breakdown:
 
 You can find more global configuration options in Caddy's docs, [here](https://caddyserver.com/docs/caddyfile/options). Once you are done editing the Caddyfile, save and close the file. Next deploy Caddy.
 
-```shell
+```shell showLineNumbers=false
 docker compose -f caddy.yml up 
 ```
 

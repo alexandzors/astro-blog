@@ -16,6 +16,7 @@ cover:
   alt: Image depicting a cross section between the old and new website.
   image: /public/covers/2024/migrating-agent-to-astro_banner.webp
 draft: false
+slug: posts/2024/09/06/migrating-agnet-to-astro
 ---
 
 import { FileTree, Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components"
@@ -195,7 +196,7 @@ The file defines the info for general metadata, Open Graph (fairly common meta i
 
 ## Setting Up The Dev/Prod Deployments
 
-This was fairly straight forward as most of the work was already done when I created the blog workflow. It was mostly copying/pasting the workflow over and doing a few minor changes. If you want to see the blog workflow, albeit slightly outdated, you can find it [here](https://blog.alexsguardian.net/posts/2022/08/15/DeployJekyllLinode/).
+This was fairly straight forward as most of the work was already done when I created the blog workflow. It was mostly copying/pasting the workflow over and doing a few minor changes. If you want to see the blog workflow, albeit slightly outdated, you can find it [here](https://blog.alexsguardian.net/posts/2022/08/15/deployjekylllinode/).
 
 ```yml title="ci.yml"
 name: Deploy Site
@@ -489,11 +490,11 @@ import { Icon } from 'astro-icon/components'
 
 ```
 
-<br></br>
+<br />
 
 ## Creating Custom Components
 
-One of the things this theme did not have was a scroller/carousel (for testimonials/ratings). Which means I had to create one from scratch. It was easy enough to create a new component as it's a similar process to new pages. The component files live in the `/src/components` directory instead of the `/src/pages` one.
+One of the things this theme did not have been a scroller/carousel (for testimonials/ratings). Which means I had to create one from scratch. It was easy enough to create a new component as it's a similar process to new pages. The component files live in the `/src/components` directory instead of the `/src/pages` one.
 
 Since me and well 'coding' don't mix. I ended up going back and forth with ChatGPT 4o on various issues I was encountering while making the carousel component. This is probably not the best way to do it but its working well enough in its current state. 
 
@@ -579,7 +580,7 @@ Since me and well 'coding' don't mix. I ended up going back and forth with ChatG
 
 If you want to see the component in detail you can check out the file [here](https://github.com/alexandzors/astro-agnet/blob/main/src/components/TestimonialCarousel.astro). The deployment process for production pulls a JSON file that the testimonial component uses for the actual data. This JSON file is updated automatically on feedback from my clients when they utilize the form link provided on invoices. Though at the moment this only updates when a new version of the production site is 'released'.
 
-<br></br>
+<br />
 
 ## So What's Next And Other Thoughts?
 
