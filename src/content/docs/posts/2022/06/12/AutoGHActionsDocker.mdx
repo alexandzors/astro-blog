@@ -53,7 +53,7 @@ You should have these items created and set up before following this post.
 
 The first thing we need to do is get our repository up and going on GitHub. The easiest way to do this is to first create the repository on GitHub using the [web interface](https://github.com/new). Can be public or private, choice is yours.
 
-![GitHub Repo Creation](/src/assets/series/gh-actions/gh-create-repo.gif)
+![GitHub Repo Creation](/src/assets/posts_images/2022/06/12/gh-create-repo.gif)
 
 Once your repository is created you'll want to clone it to your environment. Open Windows Terminal (mine defaults to PowerShell 7 though the commands should be similar on older versions) and run the following commands:
 
@@ -70,7 +70,7 @@ Now clone the repository by running:
 git clone https://github.com/yourusername/yourgitrepo.git
 ```
 
-![GitHub Repo Clone](/src/assets/series/gh-actions/gh-clone-repo.gif)
+![GitHub Repo Clone](/src/assets/posts_images/2022/06/12/gh-clone-repo.gif)
 
 <Aside type="tip">
   If it asks you to login enter your GitHub username and then your PAT as your password.
@@ -168,7 +168,7 @@ Verify your new git repository looks like the following:
 
 ## Creating GitHub Actions Secrets
 
-Before we can run the actions pipeline, we need to setup our new repository with secrets. These secrets will be used to login to your Docker Hub account from inside the Actions CLI. 
+Before we can run the actions pipeline, we need to set up our new repository with secrets. These secrets will be used to log in to your Docker Hub account from inside the Actions CLI. 
 
 
 ### Obtaining an Access Token for Docker Hub
@@ -178,7 +178,7 @@ Before we can run the actions pipeline, we need to setup our new repository with
 
 First login to your Docker Hub account and go to [Account Settings > Security](https://hub.docker.com/settings/security). Under Access Tokens click on `New Access Token`. Give it a memorable description and access permissions scope of `Read & Write`. Then click on `Generate` to generate the new token. It should look like the following image if you are successful. Copy the new token to a safe location as it is only displayed this one time.
 
-![Docker Hub Access Token](/src/assets/series/gh-actions/gh-docker_hub_secret.png)
+![Docker Hub Access Token](/src/assets/posts_images/2022/06/12/gh-docker_hub_secret.png)
 
 ### Adding GitHub Repository Secrets
 
@@ -198,7 +198,7 @@ DOCKER_HUB_PW | A github PAT with `write:packages` scope
 
 Once done your Actions secrets should look similar to this:
 
-![GitHub Actions Secrets](/src/assets/series/gh-actions/gh-actions-secrets.png)
+![GitHub Actions Secrets](/src/assets/posts_images/2022/06/12/gh-actions-secrets.png)
 
 ## Running the Job
 
@@ -219,11 +219,11 @@ After pushing our changes we can verify the Action is running by navigating to t
 
 You will see a new entry in the list view similar to the one below.
 
-![GitHub Actions Tab](/src/assets/series/gh-actions/gh-actions-tab.png)
+![GitHub Actions Tab](/src/assets/posts_images/2022/06/12/gh-actions-tab.png)
 
-Clicking on the item will bring you to the pipeline log. You can expand each of the steps to see what it did and if there are errors and what they are. The below image is from the actions pipeline for my [Caddy](https://hub.docker.com/alexandzors/caddy) image that also builds a executable binary. The red boxes are what you should see in yours.
+Clicking on the item will bring you to the pipeline log. You can expand each of the steps to see what it did and if there are errors and what they are. The below image is from the actions pipeline for my [Caddy](https://hub.docker.com/alexandzors/caddy) image that also builds an executable binary. The red boxes are what you should see in yours.
 
-![GitHub Actions Pipeline](/src/assets/series/gh-actions/gh-actions-pipeline-view.png)
+![GitHub Actions Pipeline](/src/assets/posts_images/2022/06/12/gh-actions-pipeline-view.png)
 
 <Aside type="note">
   If you have errors double check your pipeline config or Dockerfile for spelling mistakes.

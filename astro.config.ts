@@ -20,6 +20,7 @@ export default defineConfig({
         },
       ],
       plugins: [starlightBlog({
+        postCount: 10,
         recentPostCount: 1,
         prefix: 'posts',
           authors: {
