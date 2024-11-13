@@ -29,15 +29,15 @@ export default defineConfig({
             plugins: [pluginLineNumbers()],
         },
         social: {
-			    blueSky: 'https://bsky.app/profile/alexandzors.bsky.social',
-			    youtube: 'https://www.youtube.com/@alexandzors',
+          blueSky: 'https://bsky.app/profile/alexandzors.bsky.social',
+          youtube: 'https://www.youtube.com/@alexandzors',
           github: 'https://github.com/alexandzors',
-			    email: 'mailto:blog@alexsguardian.net',
+          email: 'mailto:blog@alexsguardian.net',
         },
-		}), partytown({
-			// https://docs.astro.build/en/guides/integrations-guide/partytown/
+    }), partytown({
+      // https://docs.astro.build/en/guides/integrations-guide/partytown/
 
-			// Example: Disable debug mode.
-			config: { debug: false },
-		  })],
+      // Example: Disable debug mode.
+      config: { debug: false },
+      })],
 });
