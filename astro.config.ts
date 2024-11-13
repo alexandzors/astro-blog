@@ -35,7 +35,7 @@ export default defineConfig({
     customCss: ['./src/blog-styles.css'],
     expressiveCode: {
         /* https://expressive-code.com/guides/themes/ */
-        themes: ['github-dark', 'github-light'],
+        themes: ['material-theme-darker', 'material-theme-lighter'],
         // @ts-ignore
         plugins: [pluginLineNumbers()],
     },
