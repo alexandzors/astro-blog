@@ -9,3 +9,13 @@
 .preview h2{
     font-size: 1.6rem;
 }
+#starlight__sidebar{
+    display: none;
+}
+.content-panel{
+    border-top-width: 0px !important;
+}
+
+header>div:nth-child(1) button{
+    max-width: 46rem;
+}
