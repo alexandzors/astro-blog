@@ -5,7 +5,7 @@
 
 🌟 _Most *starred* & *forked* Astro theme in 2022 & 2023_. 🌟
 
-**AstroWind** is a free and open-source template to make your website using **[Astro 4.0](https://astro.build/) + [Tailwind CSS](https://tailwindcss.com/)**. Ready to start a new project and designed taking into account web best practices.
+**AstroWind** is a free and open-source template to make your website using **[Astro 5.0](https://astro.build/) + [Tailwind CSS](https://tailwindcss.com/)**. Ready to start a new project and designed taking into account web best practices.
 
 - ✅ **Production-ready** scores in **PageSpeed Insights** reports.
 - ✅ Integration with **Tailwind CSS** supporting **Dark mode** and **_RTL_**.
@@ -65,7 +65,7 @@ We're embarking on an exciting journey with **AstroWind 2.0**, and we want you t
 
 ## Getting started
 
-**AstroWind** tries to give you quick access to creating a website using [Astro 4.0](https://astro.build/) + [Tailwind CSS](https://tailwindcss.com/). It's a free theme which focuses on simplicity, good practices and high performance.
+**AstroWind** tries to give you quick access to creating a website using [Astro 5.0](https://astro.build/) + [Tailwind CSS](https://tailwindcss.com/). It's a free theme which focuses on simplicity, good practices and high performance.
 
 Very little vanilla javascript is used only to provide basic functionality so that each developer decides which framework (React, Vue, Svelte, Solid JS...) to use and how to approach their goals.
 
@@ -120,7 +120,7 @@ Inside **AstroWind** template, you'll see the following folders and files:
 │   ├── config.yaml
 │   └── navigation.js
 ├── package.json
-├── astro.config.mjs
+├── astro.config.ts
 └── ...
 ```
 
@@ -140,15 +140,15 @@ Any static assets, like images, can be placed in the `public/` directory if they
 
 All commands are run from the root of the project, from a terminal:
 
-| Command               | Action                                             |
-| :-------------------- | :------------------------------------------------- |
-| `npm install`         | Installs dependencies                              |
-| `npm run dev`         | Starts local dev server at `localhost:3000`        |
-| `npm run build`       | Build your production site to `./dist/`            |
-| `npm run preview`     | Preview your build locally, before deploying       |
-| `npm run format`      | Format codes with Prettier                         |
-| `npm run lint:eslint` | Run Eslint                                         |
-| `npm run astro ...`   | Run CLI commands like `astro add`, `astro preview` |
+| Command             | Action                                             |
+| :------------------ | :------------------------------------------------- |
+| `npm install`       | Installs dependencies                              |
+| `npm run dev`       | Starts local dev server at `localhost:4321`        |
+| `npm run build`     | Build your production site to `./dist/`            |
+| `npm run preview`   | Preview your build locally, before deploying       |
+| `npm run check`     | Check your project for errors                      |
+| `npm run fix`       | Run Eslint and format codes with Prettier          |
+| `npm run astro ...` | Run CLI commands like `astro add`, `astro preview` |
 
 <br>
 
@@ -256,13 +256,13 @@ prefer.
 
 #### Deploy to Netlify
 
-Clone this repository on own GitHub account and deploy to Netlify:
+Clone this repository on your own GitHub account and deploy it to Netlify:
 
 [![Netlify Deploy button](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/onwidget/astrowind)
 
 #### Deploy to Vercel
 
-Clone this repository on own GitHub account and deploy to Vercel:
+Clone this repository on your own GitHub account and deploy to Vercel:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fonwidget%2Fastrowind)
 
@@ -283,7 +283,7 @@ Clone this repository on own GitHub account and deploy to Vercel:
 
 ## Contributing
 
-If you have any idea, suggestions or find any bugs, feel free to open a discussion, an issue or create a pull request.
+If you have any ideas, suggestions or find any bugs, feel free to open a discussion, an issue or create a pull request.
 That would be very useful for all of us and we would be happy to listen and take action.
 
 ## Acknowledgements
