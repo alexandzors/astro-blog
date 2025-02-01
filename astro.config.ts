@@ -1,7 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { defineConfig } from 'astro/config';
+import { defineConfig, sharpImageService } from 'astro/config';
 
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
@@ -30,7 +30,6 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
     sitemap(),
-    mdx(),
     icon({
       include: {
         tabler: ['*'],
@@ -47,6 +46,7 @@ export default defineConfig({
         ],
       },
     }),
+    mdx(),
 
     ...whenExternalScripts(() =>
       partytown({
@@ -89,3 +89,7 @@ export default defineConfig({
     },
   },
 });
+
+export interface sharpImageService {
+  limitInputPixels: 2073600
+}

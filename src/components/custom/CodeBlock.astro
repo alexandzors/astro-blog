@@ -1,0 +1,38 @@
+---
+import { Prism } from '@astrojs/prism';
+
+const {
+    code,
+    lang,
+    filename,
+} = Astro.props;
+
+const hasLang = !!lang;
+const hasFileName = !!filename;
+
+const showHeader = hasLang || hasFileName;
+---
+
+<figure class="code-block">
+
+    {showHeader && (
+        <figcaption class="header">
+            {hasFileName && (
+                <span class="filename">
+                    {filename}
+                </span>
+            )}
+            {hasLang && (
+                <span class="lang">
+                    {lang}
+                </span>
+            )}
+        </figcaption>
+    )}
+
+    <Prism
+        code={code}
+        lang={lang}
+    />
+
+</figure>
