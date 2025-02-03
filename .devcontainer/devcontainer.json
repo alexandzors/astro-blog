@@ -26,6 +26,6 @@
 	"postCreateCommand": "npm install",
 	"remoteUser": "node",
 	"mounts": [
-		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
 	]
 }
