@@ -23,9 +23,6 @@
 		}
 	},
 	"forwardPorts": [4321, 3000],
-	"containerEnv": {
-			"CHOKIDAR_USEPOLLING": "true"
-	},
-	"postCreateCommand": "npm install && npm run dev",
+	"postCreateCommand": "npm install",
 	"remoteUser": "node"
 }

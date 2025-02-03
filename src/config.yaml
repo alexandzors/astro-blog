@@ -11,7 +11,7 @@ metadata:
   title:
     default: Alex's Blog
     template: "%s"
-  description: "Sometimes a Developer"
+  description: "Sometimes I blog about my homelab or other various projects."
   robots:
     index: true
     follow: true
@@ -38,7 +38,7 @@ apps:
 
     post:
       isEnabled: true
-      permalink: '/posts/%year%/%month%/%day%/%slug%' # Variables: %slug%, %year%, %month%, %day%, %hour%, %minute%, %second%, %category%
+      permalink: '/posts/%slug%' # Variables: %slug%, %year%, %month%, %day%, %hour%, %minute%, %second%, %category%
       robots:
         index: true
 
