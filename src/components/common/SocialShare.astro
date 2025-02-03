@@ -1,5 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
+import CopyLink from '../custom/CopyLink.astro';
 
 export interface Props {
   text: string;
@@ -14,7 +15,18 @@ const { text, url, class: className = 'inline-block' } = Astro.props;
   <span class="align-super font-bold text-slate-500 dark:text-slate-400">Share:</span>
   <button
     class="ml-2 rtl:ml-0 rtl:mr-2"
-    title="Twitter Share"
+    title="Share via Bluesky"
+    data-aw-social-share="bluesky"
+    data-aw-url={url}
+    data-aw-text={text}
+    ><Icon
+      name="tabler:brand-bluesky"
+      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-[#4f9bd9] dark:hover:text-[#4f9bd9]"
+    />
+  </button>
+  <button
+    class="ml-2 rtl:ml-0 rtl:mr-2"
+    title="Share via X (Twitter)"
     data-aw-social-share="twitter"
     data-aw-url={url}
     data-aw-text={text}
@@ -23,24 +35,28 @@ const { text, url, class: className = 'inline-block' } = Astro.props;
       class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-black dark:hover:text-slate-300"
     />
   </button>
-  <button class="ml-2 rtl:ml-0 rtl:mr-2" title="Facebook Share" data-aw-social-share="facebook" data-aw-url={url}
+  <button 
+    class="ml-2 rtl:ml-0 rtl:mr-2" 
+    title="Share via Facebook" 
+    data-aw-social-share="facebook" 
+    data-aw-url={url}
     ><Icon
       name="tabler:brand-facebook"
-      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-black dark:hover:text-slate-300"
+      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-[#1877F2] dark:hover:text-[#1877F2]"
     />
   </button>
   <button
     class="ml-2 rtl:ml-0 rtl:mr-2"
-    title="Linkedin Share"
+    title="Share via Linkedin"
     data-aw-social-share="linkedin"
     data-aw-url={url}
     data-aw-text={text}
     ><Icon
       name="tabler:brand-linkedin"
-      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-black dark:hover:text-slate-300"
+      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-[#0072b1] dark:hover:text-[#0072b1]"
     />
   </button>
-  <button
+  <!-- <button
     class="ml-2 rtl:ml-0 rtl:mr-2"
     title="Whatsapp Share"
     data-aw-social-share="whatsapp"
@@ -50,16 +66,17 @@ const { text, url, class: className = 'inline-block' } = Astro.props;
       name="tabler:brand-whatsapp"
       class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-black dark:hover:text-slate-300"
     />
-  </button>
+  </button> -->
   <button
     class="ml-2 rtl:ml-0 rtl:mr-2"
-    title="Email Share"
+    title="Share via Email"
     data-aw-social-share="mail"
     data-aw-url={url}
     data-aw-text={text}
     ><Icon
-      name="tabler:mail"
-      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-black dark:hover:text-slate-300"
+      name="tabler:brand-gmail"
+      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-[#DB4437] dark:hover:text-[#DB4437]"
     />
   </button>
+  <CopyLink />
 </div>
