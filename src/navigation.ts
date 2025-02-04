@@ -39,6 +39,6 @@ export const footerData = {
   ],
   footNote: `
     <img class="w-5 h-5 md:w-6 md:h-6 md:-mt-0.5 bg-cover mr-1.5 rtl:mr-0 rtl:ml-1.5 float-left rtl:float-right rounded-sm" src="/src/assets/favicons/favicon.svg" alt="Alex's Guardian Logo" loading="lazy"></img>
-    © 2025 - <a class="text-blue-600 underline dark:text-muted" href="https://github.com/alexandzors"> Alexander Henderson</a>. Some rights reserved. <span class="flex"> Powered by 🚀 <a class="text-blue-600 underline dark:text-muted" href="https://github.com/onwidget/astrowind"> Astrowind</a>.</span>
+    © 2025 - <a class="text-blue-600 underline dark:text-muted" href="https://github.com/alexandzors"> Alexander Henderson</a>. Some rights reserved. <span class="flex"> Powered by <a class="text-blue-600 underline dark:text-muted" href="https://github.com/onwidget/astrowind"> Astrowind</a> 🚀 </span>
   `,
 };

@@ -97,6 +97,9 @@ import { UI } from 'astrowind:config';
         case 'bluesky':
           href = `https://bsky.app/intent/compose?text=${text}%20${url}`;
           break;
+        case 'telegram':
+          href= `https://t.me/share/url?url=${url}`
+          break;
         default:
           return;
       }
@@ -106,6 +109,25 @@ import { UI } from 'astrowind:config';
       newlink.href = href;
       newlink.click();
     });
+
+    attachEvent('[data-aw-social-copy]', 'click', function (_, elem) {
+      const url = encodeURIComponent(elem.getAttribute('data-aw-url'));
+      const fixedUrl = fixUrl(url);
+
+      document.querySelector('#toast')?.classList.remove('opacity-0');
+      document.querySelector('#toast')?.classList.add('opacity-100');
+
+      navigator.clipboard.writeText(fixedUrl);
+      console.log(fixedUrl);
+      setTimeout(() => {
+        document.querySelector('#toast')?.classList.remove('opacity-100');
+        document.querySelector('#toast')?.classList.add('opacity-0');
+      }, 2000);
+    });
+
+    function fixUrl(url) {
+      return url.replace(/%3A/g, ':').replace(/%2F/g, '/');
+    }
 
     const screenSize = window.matchMedia('(max-width: 767px)');
     screenSize.addEventListener('change', function () {

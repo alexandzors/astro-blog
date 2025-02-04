@@ -1,6 +1,5 @@
 ---
 import { Icon } from 'astro-icon/components';
-import CopyLink from '../custom/CopyLink.astro';
 
 export interface Props {
   text: string;
@@ -22,6 +21,17 @@ const { text, url, class: className = 'inline-block' } = Astro.props;
     ><Icon
       name="tabler:brand-bluesky"
       class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-[#4f9bd9] dark:hover:text-[#4f9bd9]"
+    />
+  </button>
+  <button
+    class="ml-2 rtl:ml-0 rtl:mr-2"
+    title="Share via Telegram"
+    data-aw-social-share="telegram"
+    data-aw-url={url}
+    data-aw-text={text}
+    ><Icon
+      name="tabler:brand-telegram"
+      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-[#2AABEE]  dark:hover:text-[#2AABEE]"
     />
   </button>
   <button
@@ -56,17 +66,6 @@ const { text, url, class: className = 'inline-block' } = Astro.props;
       class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-[#0072b1] dark:hover:text-[#0072b1]"
     />
   </button>
-  <!-- <button
-    class="ml-2 rtl:ml-0 rtl:mr-2"
-    title="Whatsapp Share"
-    data-aw-social-share="whatsapp"
-    data-aw-url={url}
-    data-aw-text={text}
-    ><Icon
-      name="tabler:brand-whatsapp"
-      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-black dark:hover:text-slate-300"
-    />
-  </button> -->
   <button
     class="ml-2 rtl:ml-0 rtl:mr-2"
     title="Share via Email"
@@ -78,5 +77,18 @@ const { text, url, class: className = 'inline-block' } = Astro.props;
       class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-[#DB4437] dark:hover:text-[#DB4437]"
     />
   </button>
-  <CopyLink />
+
+  <button
+    class="ml-2 rtl:ml-0 rtl:mr-2"
+    title="Copy Link"
+    data-aw-social-copy="copylink"
+    data-aw-url={url}
+    ><Icon 
+      name="tabler:link" 
+      class="w-6 h-6 text-gray-400 dark:text-slate-500 hover:text-[--aw-color-accent] dark:hover:text-[--aw-color-accent]"
+  />
+    <div id="toast" class="pointer-events-none absolute p-2 bg-slate-500 text-white rounded-lg opacity-0 -translate-x-[20px] translate-y-[5px] transition-opacity duration-300 transform">
+      copied
+    </div>
+  </button>
 </div>
