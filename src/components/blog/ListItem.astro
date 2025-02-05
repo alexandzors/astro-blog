@@ -66,6 +66,13 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
     <header>
       <div class="mb-1">
         <span class="text-sm">
+          {post.pinned && (
+            <>
+              <Icon name="tabler:pin" class="w-3.5 h-3.5 inline-block -mt-0.5 dark:text-gray-400" />
+              <span class="text-primary dark:text-blue-400 font-medium">Pinned</span>
+              {' · '}
+            </>
+          )}
           <Icon name="tabler:clock" class="w-3.5 h-3.5 inline-block -mt-0.5 dark:text-gray-400" />
           <time datetime={String(post.publishDate)} class="inline-block">{getFormattedDate(post.publishDate)}</time>
           {

@@ -5,7 +5,7 @@ export interface Post {
   /** A unique ID number that identifies a post. */
   id: string;
 
-  /** A post’s unique slug – part of the post’s URL based on its name, i.e. a post called “My Sample Page” has a slug “my-sample-page”. */
+  /** A post's unique slug – part of the post's URL based on its name, i.e. a post called "My Sample Page" has a slug "my-sample-page". */
   slug: string;
 
   /**  */
@@ -35,6 +35,9 @@ export interface Post {
 
   /**  */
   draft?: boolean;
+
+  /**  */
+  pinned?: boolean;
 
   /**  */
   Content?: AstroComponentFactory;

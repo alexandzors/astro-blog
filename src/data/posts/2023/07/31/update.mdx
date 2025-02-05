@@ -1,0 +1,75 @@
+---
+publishDate: 2023-07-31T19:00:00-04:00
+title: Status Update -- I Still Exist!
+excerpt: A quick I'm still alive update.
+category: Info
+tags:
+  - blog info
+  - updates
+author: Alexander
+comments: false
+---
+import ImgDesc from '~/components/custom/ImgDesc.astro'
+import Aside from '~/components/widgets/Aside.astro'
+import { Image } from 'astro:assets'
+import RACK_DONE_REAR from 'rack_done_rear.webp'
+import RACK_DONE from 'rack_done.webp'
+
+<sub class="flex mb-8 mt-8 justify-center">*FTC: Some links in this post are income earning affiliate links.*</sub>
+
+# Howdy!
+
+<div class="flex justify-center">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGQ5a3BnM3A4Z2cyb296Ynk2NGQ2MTU4eWFlZjR3aWdybXRydTVncCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l1KtYG8BndKBmWrM4/giphy.gif" alt="I'm not dead gif" />
+</div>
+
+<hr />
+
+Yes, I am still alive and kicking! I have been super busy since January this year. The company I work for got bought out back in March, and we had to temporarily move to a shared office space. We finally got into our own space, and I've been building out the network infrastructure for it. Some quick stats if you are curious:
+
+- Pulled 10k feet of Ethernet cable with a co-worker through a crummy drop ceiling. (4 cables per 2 port wall outlet)
+- Managing our Fiber install from Comcast... which won't be done till the middle of August >:3
+- Punched down over 60+ keystone jacks.
+- Crimped a few cables.
+- Broke 3 ceiling tiles... oops :P
+- Configured and re-deployed our VM cluster and other server infra.
+- Configured and deployed more switches in our network stack.
+- Labeled and documented everything......
+- Bunch of extra office diy stuff that isn't related to IT...
+
+~~And.... I'm not done yet. Still waiting on the last shipment of slim patch cables from [fs.com](https://fs.com) since they were on back order.~~
+
+Here are a few pictures of the completed rack/cabling. +10 points if you can guess who makes the rack! You can also tell which of the tiles I accidentally broke..
+
+<div class="flex flex-col md:flex-row gap-4 items-center justify-center">
+  <Image src={RACK_DONE_REAR} width={400} height={600} alt="Rack rear view" class="max-w-full w-[300px] md:w-[400px]" />
+  <Image src={RACK_DONE} width={400} height={600} alt="Rack front view" class="max-w-full w-[300px] md:w-[400px]" />
+</div>
+<ImgDesc>Completed rack and cabling installation</ImgDesc>
+
+The office is due for a switch hardware upgrade (2024) so the current switching hardware is temporary. Also, the yellow cables come from the rack next to this one for servers. All temporarily ran until the new switching hardware is installed. The wall run cable is from [True Cable](https://amzn.to/49sty01) and the patching cables are from [fs.com](https://fs.com). And no, plenum rated cable was not required for this space per hvac guys. Also, the PVC ceiling insert was supposed to be temporary as the actual ceiling pass-through port we ordered was on backorder. It never arrived. 
+
+Oh, I was exactly ONE red keystone short for the CCTV network due to a last minute camera addition. :cry:
+
+## Homelab / Blog info
+
+I really haven't been at my desk much since we started working on the new building a month ago. With that task now coming to an "end", I can start refocusing back on my homelab and other things on my to-do. Here are some things coming up on the docket of new posts:
+
+- ~~Honey, I broke the blog at 3am..~~ (basically updated theme and broke the production blog site)
+- Varken Flux Dashboard update / upgrades
+- Pi-hole but High Availability?
+- Replacing Pi-hole with Technitium DNS
+- Kinetic by Windstream review.
+- ~~Caddy & Cloudflare tunnel.~~ [p1 done](/posts/2023/12/04/caddyguide-part1/)
+- Unifi Talk Review v2.0.
+- Unifi Dream Machine Pro Review on v3.1 Firmware (update of an ancient post when it first came out that got deleted in the move to Jekyll)
+
+I am working on all of these and will release them as they are completed. With that said, back to work I go!
+
+### Other Posts
+
+While you are here, check out some previous posts of mine:
+
+- [Monitoring Your Plex Media Server with Varken [Dev]](/posts/2022/12/04/MonitoringMediaVarken/)
+- [SSH Login Logging to Discord via Webhooks](/posts/2022/07/02/LoggingSSHtoDiscord/)
+- [Grafana - Getting Started](/posts/2022/07/22/Grafana-GettingStarted/) 

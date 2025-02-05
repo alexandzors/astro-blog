@@ -36,16 +36,16 @@ if (!title) {
 ---
 
 <aside aria-label={title} 
-    class={`p-4 border-l-4 text-[var(--aw-color-text-default)] rounded-[.25rem]
-    ${type === 'note' ? 'border-[var(--aw-color-accent)] bg-[var(--aw-color-accent-50)] ' : ''}
+    class={`px-4 py-[.5rem] my-8 border-l-4 text-[var(--aw-color-text-default)] rounded-[.25rem] font-heading font-bold shadow-md
+    ${type === 'note' ? 'border-[var(--aw-color-accent)] bg-[var(--aw-color-accent-50)]' : ''}
     ${type === 'tip' ? 'border-[var(--aw-color-primary)] bg-[var(--aw-color-primary-50)]' : ''}
     ${type === 'caution' ? 'border-[var(--aw-color-yellow)] bg-[var(--aw-color-yellow-50)]' : ''}
     ${type === 'danger' ? 'border-[var(--aw-color-red)] bg-[var(--aw-color-red-50)]' : ''}`}>
     <p class="flex items-center gap-2 font-semibold text-lg text-[var(--color-asides-text-accent)]">
-        <Icon name={icons[type]} class="text-xl" />
+        <Icon name={icons[type]} class="text-2xl" />
         {title}
     </p>
-    <section class="mt-2">
+    <section class="-py-1 text-lg font-normal">
         <slot />
     </section>
 </aside>

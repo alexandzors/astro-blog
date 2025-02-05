@@ -91,10 +91,51 @@ const { post, url } = Astro.props;
       }
     </header>
     <div
-      class="mx-auto px-6 sm:px-6 max-w-4xl prose prose-md lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-a:text-primary dark:prose-a:text-blue-400 prose-img:rounded-md prose-img:shadow-lg mt-8 prose-headings:scroll-mt-[80px] prose-li:my-0"
+      class="mx-auto px-6 sm:px-6 max-w-4xl prose prose-md lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-a:text-primary dark:prose-a:text-blue-400 prose-img:rounded-md prose-img:shadow-lg mt-8 prose-headings:scroll-mt-[80px] prose-li:my-0 prose-a:no-underline"
     >
       <slot />
     </div>
+    <style>
+      /* Footnote reference (the up arrow in the text) */
+      :global(.prose a.footnote-ref) {
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.125rem;
+      }
+      :global(.prose a.footnote-ref::before) {
+        content: '';
+        mask: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-back-up"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 14l-4 -4l4 -4" /><path d="M5 10h11a4 4 0 1 1 0 8h-1" /></svg>');
+        mask-size: contain;
+        background-color: currentColor;
+        width: 1rem;
+        height: 1rem;
+        display: inline-block;
+      }
+
+      /* Footnote back reference (the return arrow at bottom) */
+      :global(.prose a[data-footnote-backref]) {
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.125rem;
+      }
+      :global(.prose a[data-footnote-backref]::before) {
+        content: '';
+        mask: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-back-up"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 14l-4 -4l4 -4" /><path d="M5 10h11a4 4 0 1 1 0 8h-1" /></svg>');
+        mask-size: contain;
+        background-color: currentColor;
+        width: 1rem;
+        height: 1rem;
+        display: inline-block;
+      }
+      :global(.prose a[data-footnote-backref]) {
+        font-size: 0;  /* Hide the ↩ character */
+      }
+      :global(.prose a[data-footnote-backref]::after) {
+        content: '';  /* Remove any potential after content */
+      }
+    </style>
     <div class="mx-auto px-6 sm:px-6 max-w-4xl mt-8 flex justify-between flex-col sm:flex-row">
       <PostTags tags={post.tags} class="mr-5 rtl:mr-0 rtl:ml-5" />
       <SocialShare url={url} text={post.title} class="mt-5 sm:mt-1 align-middle text-gray-500 dark:text-slate-600" />

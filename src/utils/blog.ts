@@ -56,6 +56,7 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
     draft = false,
     metadata = {},
     comments,
+    pinned = false,
   } = data;
 
   const slug = cleanSlug(id); // cleanSlug(rawSlug.split('/').pop());
@@ -100,6 +101,8 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
     readingTime: remarkPluginFrontmatter?.readingTime,
 
     comments: comments,
+    
+    pinned: pinned,
   };
 };
 
