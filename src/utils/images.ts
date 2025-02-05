@@ -5,8 +5,10 @@ import type { OpenGraph } from '@astrolib/seo';
 const load = async function () {
   let images: Record<string, () => Promise<unknown>> | undefined = undefined;
   try {
-    images = import.meta.glob('~/assets/images/**/*.{jpeg,jpg,png,tiff,webp,gif,svg,JPEG,JPG,PNG,TIFF,WEBP,GIF,SVG,WEBM}');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    images = import.meta.glob([
+      '~/assets/images/**/*.{jpeg,jpg,png,tiff,webp,gif,svg,JPEG,JPG,PNG,TIFF,WEBP,GIF,SVG,WEBM}',
+      '~/data/posts/**/**/**/*.{jpeg,jpg,png,tiff,webp,gif,svg,JPEG,JPG,PNG,TIFF,WEBP,GIF,SVG,WEBM,webm}'
+    ]);
   } catch (error) {
     // continue regardless of error
   }
@@ -35,14 +37,19 @@ export const findImage = async (
     return imagePath;
   }
 
-  // Relative paths or not "~/assets/"
-  if (!imagePath.startsWith('~/assets/images')) {
+  const images = await fetchLocalImages();
+
+  // Handle local files (relative to MDX)
+  if (!imagePath.startsWith('~/')) {
+    const contentPath = `/src/data/posts/${imagePath}`;
+    if (images && typeof images[contentPath] === 'function') {
+      return ((await images[contentPath]()) as { default: ImageMetadata })['default'];
+    }
     return imagePath;
   }
 
-  const images = await fetchLocalImages();
+  // Handle ~/assets/ paths
   const key = imagePath.replace('~/', '/src/');
-
   return images && typeof images[key] === 'function'
     ? ((await images[key]()) as { default: ImageMetadata })['default']
     : null;
