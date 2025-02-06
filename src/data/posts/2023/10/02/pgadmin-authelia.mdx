@@ -15,6 +15,8 @@ comments: true
 ---
 import ImgDesc from '~/components/custom/ImgDesc.astro'
 import Aside from '~/components/widgets/Aside.astro'
+import { Image } from 'astro:assets'
+import PGADMIN_SIGNIN from 'pgadmin_signin.webp'
 
 This is also another post outside my planned posts, but I wanted to drop this as a quickie. I started deploying SSO, via [Authelia](https://authelia.com), through the lab and ended up having a few PEBKAC errors with [pgAdmin](https://www.pgadmin.org/) and figured I'd post a simple 'guide' to hopefully keep others from experiencing them. My pain, your gain :sweat_smile:. Also, big shout out to my brother for some SSO insight since he deals with configuring it constantly at his job! :muscle:
 
@@ -59,7 +61,7 @@ Now we need to edit our Authelia `configuration.yml` to enable OIDC and create t
 
 The OIDC redirect URI for pgAdmin is: `{DOMAIN}/oauth2/authorize`. In my case I have pgAdmin running as a subdirectory. Make sure to change this to match your environment.
 
-```yaml title="configuration.yml"
+```yml title="configuration.yml"
 identity_providers:
   oidc:
     hmac_secret:
@@ -113,7 +115,7 @@ mkdir ~/authelia/.secrets
 
 Create the following files with their respective contents:
 
-```text title="oidc_issuer_cert" showLineNumbers=false
+```txt title="oidc_issuer_cert" showLineNumbers=false
 -----BEGIN CERTIFICATE-----
 MIIDFzCCAf+gAwIBAgIQXxWNgME/RwUZ/MjcU704xzANBgkqhkiG9w0BAQsFADAs
 MREwDwYDVQQKEwhBdXRoZWxpYTEXMBUGA1UEAxMOeW91cmRvbWFpbi5jb20wHhcN
@@ -135,7 +137,9 @@ CDO3dIxzE01a50t4sKuJh+ubEGlxCVn9rT4e
 -----END CERTIFICATE-----
 ```
 
-```text title="oidc_private_key" showLineNumbers=false
+<br />
+
+```txt title="oidc_private_key" showLineNumbers=false
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAycwMrzAQTbC3nxofwAOIkoVMBUqPFO5dC+iXlcdr3+bs7gKs
 Fckk2mGExgJ0c/SqU2pQlpiNs34GvF9YE9fYwnCsF/AknMLCrJdPk1PyPi9/lF16
@@ -165,7 +169,7 @@ NkvEX4Ab75j4AUfMq5qLxhtmf70vDGax2utm8qqnJy6gbAsxGcyDsQ==
 -----END RSA PRIVATE KEY-----
 ```
 
-```text title="oidc_hmac_secret" showLineNumbers=false
+```txt title="oidc_hmac_secret" showLineNumbers=false
 aI84lHge7keZhU7sh7gLZgCUcAIpr9qQruya5O8mkcd5UlZ9tubi4fQs8Ps1peQNbahHaTCQ0OOEftEB6q5E2Hk8WLozX6xeBjhAtqihWZcYnwSBuUeAs2jwCus4uc2S
 ```
 
@@ -175,7 +179,7 @@ Now edit your Authelia .env file and add the following OIDC variables.
 Do not use the above values. These are examples.
 </Aside>
 
-```env title=".authelia.env" showLineNumbers=false
+```shell title=".authelia.env" showLineNumbers=false
 # JWT Secret
 AUTHELIA_JWT_SECRET_FILE=/secrets/jwt_secret
 
@@ -198,7 +202,7 @@ Save and re-deploy Authelia to update the configuration.
 
 Edit your pgAdmin .env file with the following environment variables. The pgAdmin config is annoying in that you need to specify the OAUTH_CONFIG settings inside an object. So it seems complicated but it is not. Each pair is defined as `'key_name': 'value'` and is separated by `,`. Go through and edit the object array to match your client config and root domain. All the API endpoints are correct for Authelia so just change the root domain! For more info on the config options for pgAdmin see the docs' page [here](https://www.pgadmin.org/docs/pgadmin4/latest/config_py.html#the-config-py-file).
 
-```env title=".pgadmin.env" showLineNumbers=false
+```shell title=".pgadmin.env" showLineNumbers=false
 # First time setup / default user
 PGADMIN_DEFAULT_EMAIL=temp@temp.com
 PGADMIN_DEFAULT_PASSWORD=temp1234
@@ -221,7 +225,7 @@ If you only want SSO enabled for pgAdmin you can remove `'internal'` from `PGADM
 
 Save and close the file. Then redeploy pgAdmin to use the new configuration. Once pgAdmin redeploys open your browser and navigate to pgAdmin. You should see a new option listed on the login page for logging in with Authelia.
 
-![pgAdmin with Authelia signin](pgadmin_signin.webp)
+<Image src={PGADMIN_SIGNIN} width={1920} alt="pgAdmin with Authelia signin" loading="lazy"  />
 <ImgDesc>Example of my sign-in page for pgAdmin while OAuth is enabled</ImgDesc>
 
 <Aside type="tip">
