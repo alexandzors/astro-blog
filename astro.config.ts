@@ -11,7 +11,7 @@ import icon from 'astro-icon';
 import compress from 'astro-compress';
 import type { AstroIntegration } from 'astro';
 
-import expressiveCode from 'astro-expressive-code';
+import astroExpressiveCode from 'astro-expressive-code';
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
 
 import astrowind from './vendor/integration';
@@ -53,9 +53,11 @@ export default defineConfig({
     },
   }), 
 
-  expressiveCode({
+  astroExpressiveCode({
     themes: ['andromeeda'],
-    plugins: [pluginLineNumbers()],
+    plugins: [
+      pluginLineNumbers()
+    ],
   }),
 
   mdx(),

@@ -1,0 +1,64 @@
+---
+publishDate: 2022-05-31T09:00:00-04:00
+title: Alex's Blog / Alex's Guardian Update + Future
+excerpt: Updates about my blog and the biz.
+category: Updates
+tags:
+  - blog info
+  - updates
+author: Alexander
+comments: false
+---
+
+Life has changed a lot since I started my blog. My wife and I had two kids and then the covid pandemic hit. Last November my wife and I moved out of our apartment just has the housing market in the US decided to explode which priced us out of buying a home. This inadvertently affected my homelab, my blog, and my business [Alex's Guardian](https://alexsguardian.net). That and COVID really slowed down the adoption of new clients for my wife and I. Not having the time to work on things really puts a damper on getting things done haha.
+
+Both of my sites are hosted on [Linode💜](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5) using Wordpress in Docker. This was a nightmare to manage as both required a MySQL DB, plugins, and a proper theme. Both sites used mostly the same plugin stack and the Divi theme from [Elegant Themes](https://www.elegantthemes.com/gallery/divi/). However, if you are not aware Wordpress is built on PHP and as you add plugins and a full site editing theme it gets very, very resource hungry. This made it rather annoying to create posts and update pages as it crashed a lot and sometimes locked up my Linode VM. I am only using the nano tier from Linode to keep costs down so having three Wordpress sites (my blog, my biz, and my wife's WIP biz site) quickly killed my VM. I ended up splitting the blog off onto its own nano tier VM to compensate.
+
+## Why the theme change... again?
+
+After watching a the video from [Techno Tim](https://youtu.be/F8iOU1ci19Q) (who you should seriously sub to) on [Jekyll](https://jekyllrb.com/). I have decided to move all of my websites to it moving forward (blog first). The main reasons for me were:
+
+1. No DB requirement = less overhead
+2. Posts are managed via Markdown files (yes please!) 
+    - which means not having to load an interface to create them.
+    - websites can be fully managed via git + CI/CD
+3. Easy customizations
+
+Moving to Jekyll and easy post creation has reignited my drive to blog again. Now this does mean that a lot of my previous posts from Wordpress will be lost and I will not be moving them over. This includes the older guides. I will however, be recreating the most popular ones with updated info though in the coming weeks/months as I finish upgrading my backend Linode hosts and getting my pipeline updated for Jekyll deployments. I will be creating a post, *soon<sup>tm</sup>*, talking about the process of auto deploying this blog to one of my Linode hosts!
+
+## What about your homelab?
+
+My wife and I moved out of our apartment in November of 2021 with the intent to purchase a home so our kids no longer had to share a small bedroom. We did not anticipate the housing market to explode like it did so we were unable to re-sign our lease in time. This forced us to temporarily move back in with my parents while we search for a home. Because of this I had to downsize my homelab dramatically. I no longer have my 4u main VM server which used to run most of my homelab. I did however purchase two Optiplex 5050 micros to use instead as they take up A LOT less space. With losing my main VM server I did lose my old monitoring setup with Grafana, etc. So now that things have settled I will be setting that back up with my new "mini cluster."
+
+### Current homelab specs
+
+Hostname | Architecture | OS | CPU | RAM | GPU | Storage
+--- | --- | --- | --- | --- | --- | ---
+minicentauri.lab | x86 | Windows 10 Workstation | 6c 12t | 32gb | Nvidia Quadro P2000 | 30TB
+proximacentauri.lab | x86 | Ubuntu Server 21.10 | 4c 8t | 16gb | igpu | 500GB
+alphacentauri.lab | x86 | Ubuntu Server 21.10 | 4c 8t | 16gb | igpu | 500GB
+pihole1.home | ARM | raspbian lite | 4c | 1gb | Broadcom VideoCore VI | 32GB
+pihole2.home | ARM | raspbian lite | 4c | 1gb | Broadcom Videocore IV | 32GB
+
+### Current network specs
+
+Device | Uplink spd
+--- | ---
+UDM-P | 1gb WAN
+USW-AGG | 10gb DAC
+USW-16-POE | 1gb
+USW-24-PRO | 10gb FIBER
+USW-8-LITE-POE (2x) | 1gb
+US-8-60W | 1gb
+Loco5AC-US (2x) | 1gb
+U6-Pro-US | 1gb
+UAP-AC-PRO-US | 1gb
+UAP-nanoHD-US | 1gb
+
+----
+## Affiliate Links
+
+- [Linode](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5)💜
+- [Private Internet Access](https://www.privateinternetaccess.com/pages/buy-a-vpn/1218buyavpn?invite=U2FsdGVkX1-8fM3Tf_qW3eYYf6yVliXSmIZwo4nDBfM%2CYfeBrdg4n9UbF4jCvDzT83kfTKA)
+
+<sub>*FTC: Some links in this post are income generating.*</sub> 
