@@ -16,11 +16,13 @@ author: Alexander
 
 import ImgDesc from 'src/components/custom/ImgDesc.astro';
 import WebmVideo from 'src/components/custom/WebmVideo.astro';
+import SkipAnchor from 'src/components/custom/SkipAnchor.astro';
+import FTCDisclaimer from 'src/components/custom/FTCDisclaimer.astro';
 import SRT from 'site-run-through.webm';
 
-<div class="flex justify-center text-2xl"><a href="#starting-out">Skip to the goods</a></div>
+<SkipAnchor anchor="#starting-out" text="Skip to the goods" />
 
-<sub class="flex mb-8 mt-8 justify-center">*FTC: Some links in this post are income earning affiliate links.*</sub>
+<FTCDisclaimer />
 
 <hr />
 

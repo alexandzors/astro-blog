@@ -15,8 +15,10 @@ tags:
 author: Alexander
 comments: true
 ---
+
 import ImgDesc from '~/components/custom/ImgDesc.astro'
 import Aside from '~/components/widgets/Aside.astro'
+import FTCDisclaimer from '~/components/custom/FTCDisclaimer.astro'
 
 This is part 3 of this series so if you haven't completed [part 1](/posts/2022/06/12/AutoGHActionsDocker/) and [part 2](/posts/2022/06/20/AutoGHActionsDiun/) yet, go back if you want to follow along. In this part we will be updating our Caddy pipeline to deploy updates from Actions to a VM running in [Linode](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5)'s cloud. As we are using Docker to run Caddy this will be very easy. In Part 4 we will be building a binary and pushing it to the Linode VM instead, which is slightly more complicated.
 
@@ -294,4 +296,4 @@ If it starts up with no errors, terminate the container using `CTRL+C`. Then dou
 - [Linode](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5)💜
 - [Private Internet Access](https://www.privateinternetaccess.com/pages/buy-a-vpn/1218buyavpn?invite=U2FsdGVkX1-8fM3Tf_qW3eYYf6yVliXSmIZwo4nDBfM%2CYfeBrdg4n9UbF4jCvDzT83kfTKA)
 
-<sub>*FTC: Some links in this post are income generating.*</sub> 
+<FTCDisclaimer /> 

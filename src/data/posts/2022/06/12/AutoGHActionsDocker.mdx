@@ -20,8 +20,10 @@ import Aside from '~/components/widgets/Aside.astro'
 import WebmVideo from '~/components/custom/WebmVideo.astro'
 import GH_CREATE_REPO from 'gh-create-repo.webm'
 import GH_CLONE_REPO from 'gh-clone-repo.webm'
+import SkipAnchor from '~/components/custom/SkipAnchor.astro'
+import FTCDisclaimer from '~/components/custom/FTCDisclaimer.astro'
 
-I used to run a local Jenkins set up to automatically build and push my custom docker containers to Docker Hub. This was complicated to set up and maintain. Jenkins would sometimes throw errors or a plugin update would break a workflow. To fix this headache I ended up moving my build environment to [GitHub Actions](https://github.com/features/actions). This also made it even easier to integrate configs via git as it was all in a single repository. This four part post series will get you up and running with GitHub Actions and Docker container building. The fourth part will demonstrate how to build and release a binary version. If you are just interested in the building process of the container image you can ___[skip ahead](#creating-the-files).___
+I used to run a local Jenkins set up to automatically build and push my custom docker containers to Docker Hub. This was complicated to set up and maintain. Jenkins would sometimes throw errors or a plugin update would break a workflow. To fix this headache I ended up moving my build environment to [GitHub Actions](https://github.com/features/actions). This also made it even easier to integrate configs via git as it was all in a single repository. This four part post series will get you up and running with GitHub Actions and Docker container building. The fourth part will demonstrate how to build and release a binary version. If you are just interested in the building process of the container image you can <SkipAnchor text="Skip ahead" anchor="#creating-the-files" icon="" />
 
 We will be using [Caddy](https://caddyserver.com/) as our base container for this post series. A lot of the building steps are already provided by the Caddy team which makes learning a bit easier.
 
@@ -241,4 +243,4 @@ Now that we have our base pipeline setup and functional we can start doing some 
 - [Linode](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5)💜
 - [Private Internet Access](https://www.privateinternetaccess.com/pages/buy-a-vpn/1218buyavpn?invite=U2FsdGVkX1-8fM3Tf_qW3eYYf6yVliXSmIZwo4nDBfM%2CYfeBrdg4n9UbF4jCvDzT83kfTKA)
 
-<sub>*FTC: Some links in this post are income generating.*</sub> 
+<FTCDisclaimer /> 

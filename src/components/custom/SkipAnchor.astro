@@ -1,0 +1,12 @@
+---
+import '~/components/CustomStyles.astro';
+import { Icon } from 'astro-icon/components';
+
+const {
+  anchor = '',
+  text = 'Skip to the goods',
+  icon = 'tabler:arrow-down',
+} = Astro.props;
+---
+
+<div class="flex justify-center text-2xl mb-2"><a href={anchor} class="flex items-center gap-2 hover:text-[--aw-color-secondary] hover:underline">{icon ? <Icon name={icon} class="inline-block w-6 h-6" /> : ''} {text} {icon ? <Icon name={icon} class="inline-block w-6 h-6" /> : ''}</a></div>

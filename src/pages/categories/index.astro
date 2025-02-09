@@ -1,0 +1,61 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { findCategoriesWithOccurrences } from '~/utils/blog';
+import ContentWrapper from '~/components/custom/ContentWrapper.astro';
+import '~/components/CustomStyles.astro'; // Ensure CSS variables are available
+import categoryDescriptions from '~/data/category-descriptions.json';
+import { BLOG_BASE } from '~/utils/permalinks';
+
+const categoriesWithOccurrences = await findCategoriesWithOccurrences();
+
+const metadata = {
+  title: 'Categories',
+};
+
+function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function formatCategorySlug(slug: string) {
+  return slug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toLowerCase());
+}
+
+const blogBase = BLOG_BASE ? `/${BLOG_BASE}` : '';
+---
+
+<Layout metadata={metadata}>
+  <ContentWrapper>
+    <div class="space-y-4 h-dvh">
+      <h1 class="text-4xl text-center font-bold font-heading mb-8">Categories</h1>
+      <p class="text-lg text-center text-gray-600 mb-12">Click a category below to see all associated posts.</p>
+      <ul>
+        {Object.entries(categoriesWithOccurrences).map(([categorySlug, count]) => (
+          <li class="mb-4">
+            <a
+              href={`${blogBase}/category/${formatCategorySlug(categorySlug)}`}
+              class={`
+                block 
+                p-4 
+                rounded-md 
+                transition 
+                duration-200
+                hover:bg-[var(--aw-color-accent-50)]
+                hover:text-gray-200
+                dark:hover:bg-[var(--aw-color-accent-50)]
+                dark:text-[var(--aw-color-text-default)]
+                dark:bg-[var(--aw-color-primary-50)]
+                bg-[var(--aw-color-primary-50)]
+                text-[var(--aw-color-text-default)]
+                shadow-sm 
+                hover:shadow-md
+                `}
+            >
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{capitalizeFirstLetter(categorySlug)} posts:({count})</h2>
+              <p class="text-gray-600 dark:text-gray-400">{categoryDescriptions[categorySlug] || 'No description available.'}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </ContentWrapper>
+</Layout> 

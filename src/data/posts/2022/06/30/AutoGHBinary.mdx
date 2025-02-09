@@ -15,6 +15,7 @@ comments: true
 ---
 import ImgDesc from '~/components/custom/ImgDesc.astro'
 import Aside from '~/components/widgets/Aside.astro'
+import FTCDisclaimer from '~/components/custom/FTCDisclaimer.astro'
 
 Welcome to part 4 of my GitHub Actions post series. This part will cover how to build and release a binary version of Caddy from GitHub Actions. In [part 1](/posts/2022/06/12/AutoGHActionsDocker) we got our Actions pipeline up and building a Docker container for our custom Caddy server image. In [Part 2](/posts/2022/06/20/AutoGHActionsDiun) we automated that process to kick off when changes were detected in the parent [Caddy](https://hub.docker.com/_/caddy) image using [Diun](https://crazymax.dev/diun). And in [part 3](/posts/2022/06/25/AutoGHDeployLinode) we automated updating our Linode VM to pull and re-deploy our updated container image. As this post is the 4th and final part of the GitHub Actions series, make sure to check out the previous 3 parts before trying to follow along with this post!
 
@@ -70,4 +71,4 @@ As always if you run into any issues please reach out either via a comment down 
 - [Linode](https://www.linode.com/?r=67f6812cc5712674183021660b122e45095f35b5)💜
 - [Private Internet Access](https://www.privateinternetaccess.com/pages/buy-a-vpn/1218buyavpn?invite=U2FsdGVkX1-8fM3Tf_qW3eYYf6yVliXSmIZwo4nDBfM%2CYfeBrdg4n9UbF4jCvDzT83kfTKA)
 
-<sub>*FTC: Some links in this post are income generating.*</sub> 
+<FTCDisclaimer /> 
