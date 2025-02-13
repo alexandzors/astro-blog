@@ -44,6 +44,35 @@ import { UI } from 'astrowind:config';
     let lastKnownScrollPosition = window.scrollY;
     let ticking = true;
 
+    // Back to Top functionality
+    const container = document.querySelector('#back-to-top-container');
+    if (container) {
+      // Show button after scrolling down 250px
+      const toggleBackToTop = () => {
+        if (window.scrollY > 250) {
+          container.classList.remove('opacity-0', 'invisible');
+          container.classList.add('opacity-100');
+        } else {
+          container.classList.add('opacity-0', 'invisible');
+          container.classList.remove('opacity-100');
+        }
+      };
+
+      // Initial check in case page is loaded scrolled down
+      toggleBackToTop();
+
+      // Add scroll listener
+      attachEvent([document], 'scroll', toggleBackToTop);
+
+      // Smooth scroll to top when clicked
+      attachEvent('#back-to-top-container button', 'click', () => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+
     attachEvent('#header nav', 'click', function () {
       document.querySelector('[data-aw-toggle-menu]')?.classList.remove('expanded');
       document.body.classList.remove('overflow-hidden');

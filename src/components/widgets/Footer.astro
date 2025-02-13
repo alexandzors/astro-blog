@@ -66,12 +66,13 @@ const { socialLinks = [], links = [], footNote = '', theme = 'light' } = Astro.p
             {socialLinks.map(({ ariaLabel, href, text, icon, brandcolor }) => (
               <li>
                 <a
-                  class='text-muted dark:text-gray-400 hover:border-gray-100 dark:hover:border-gray-700 hover:border focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center'
+                  class='group text-muted dark:text-gray-400 hover:outline-gray-100 dark:hover:outline-gray-700 hover:outline hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center'
                   aria-label={ariaLabel}
                   href={href}
+                  target="_blank"
+                  title={ariaLabel}
                 >
-                  {/* {icon && <Icon name={icon} class={`w-5 h-5 text-[${brandcolor}] dark:text-[${brandcolor}]`} />} */}
-                  {icon && <Icon name={icon} class='w-6 h-6' />}
+                  {icon && <Icon name={icon} class="w-6 h-6 transition-colors duration-200 group-hover:text-[var(--brand-color)]" style={`--brand-color: ${brandcolor}`} />}
                   <Fragment set:html={text} />
                 </a>
               </li>
@@ -117,6 +118,9 @@ const { socialLinks = [], links = [], footNote = '', theme = 'light' } = Astro.p
     }
   }
   
+  footer {
+    --brand-color: red;
+  }
   #animation {
     pointer-events: none;
     -webkit-mask-image: linear-gradient(to top, #0000005b 60%, #0000 99%);

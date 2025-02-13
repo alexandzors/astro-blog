@@ -24,13 +24,13 @@ const metadata = {
         {orderedTagsByUsage.map(([tag, count]) => (
           <a
             href={`/tag/${tag}/`}
-            class="inline-block rounded-lg px-4 py-2 text-sm font-medium
+            class="group inline-block rounded-lg px-4 py-2 text-sm font-medium
               border border-gray-200 dark:border-gray-700
               transition duration-200 
               hover:bg-primary hover:border-primary hover:text-white hover:shadow-md 
               dark:hover:bg-primary dark:hover:border-primary"
           >
-            {tag} ({count})
+            {tag} <span class="text-muted group-hover:text-white/75">{count}</span>
           </a>
         ))}
       </div>
