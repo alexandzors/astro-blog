@@ -1,0 +1,68 @@
+---
+const { class: className = 'bottom-6 right-6' } = Astro.props;
+import '~/components/CustomStyles.astro';
+---
+
+<div id="back-to-top-container" class={`fixed ${className} z-50 group opacity-0 invisible
+  transition-opacity duration-500`}>
+  <button
+    id="back-to-top"
+    class="p-3 rounded-full bg-[--aw-color-primary] text-white
+      transition-all duration-300 hover:bg-[--aw-color-primary] hover:shadow-lg hover:scale-110
+      shadow-md dark:shadow-md"
+    aria-label="Back to top"
+  >
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      class="h-6 w-6" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor"
+    >
+      <path 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        stroke-width="2" 
+        d="M5 10l7-7m0 0l7 7m-7-7v18"
+      />
+    </svg>
+  </button>
+  
+  <span class="absolute bottom-full right-0 mb-2 px-2 py-1 text-sm text-white bg-gray-900 rounded
+    opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300
+    whitespace-nowrap">
+    Back to top
+  </span>
+</div>
+
+<script>
+  const backToTopButton = document.getElementById('back-to-top');
+  const container = document.getElementById('back-to-top-container');
+  
+  if (backToTopButton && container) {
+    // Show button after scrolling down 250px
+    const toggleBackToTop = () => {
+      if (window.scrollY > 250) {
+        container.classList.remove('opacity-0', 'invisible');
+        container.classList.add('opacity-100');
+      } else {
+        container.classList.add('opacity-0', 'invisible');
+        container.classList.remove('opacity-100');
+      }
+    };
+
+    // Smooth scroll to top when clicked
+    backToTopButton.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // Add scroll listener
+    window.addEventListener('scroll', toggleBackToTop);
+    
+    // Initial check in case page is loaded scrolled down
+    toggleBackToTop();
+  }
+</script> 

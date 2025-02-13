@@ -7,6 +7,7 @@ import Layout from '~/layouts/PageLayout.astro';
 import SinglePost from '~/components/blog/SinglePost.astro';
 import ToBlogLink from '~/components/blog/ToBlogLink.astro';
 import Comments from '~/components/custom/Comments.astro';
+import BackToTop from '~/components/common/BackToTop.astro';
 
 import { getCanonical, getPermalink } from '~/utils/permalinks';
 import { getStaticPathsBlogPost, blogPostRobots } from '~/utils/blog';
@@ -55,4 +56,5 @@ const metadata = merge(
   {post.comments ? <Comments/> : <p class="flex justify-center my-8 md:my-10 text-muted">Comments are disabled</p> }
   <hr class="w-96 h-1 mx-auto my-4 bg-[--aw-color-primary] border-0 rounded-sm md:my-10 dark:bg-[--aw-color-primary]"/>
   <RelatedPosts post={post} />
+  <BackToTop />
 </Layout>

@@ -1,0 +1,61 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { fetchPosts } from '~/utils/blog';
+import ContentWrapper from '~/components/custom/ContentWrapper.astro';
+import Timeline from '~/components/ui/Timeline.astro';
+import HeroText from '~/components/widgets/HeroText.astro';
+
+const posts = await fetchPosts();
+
+// Group posts by year
+const postsByYear = posts.reduce((acc: Record<number, typeof posts>, post) => {
+  const year = post.publishDate.getFullYear();
+  if (!acc[year]) acc[year] = [];
+  acc[year].push(post);
+  return acc;
+}, {});
+
+// Format posts for timeline
+const timelineItems = Object.entries(postsByYear)
+  .sort(([a], [b]) => Number(b) - Number(a))
+  .map(([year, yearPosts]) => ({
+    title: year,
+    description: yearPosts
+      .sort((a, b) => b.publishDate.getTime() - a.publishDate.getTime())
+      .map(post => {
+        const date = new Date(post.publishDate);
+        return `<div class="flex items-baseline gap-2 py-1">
+          <span class="text-sm text-gray-600 dark:text-gray-400 w-20">
+            ${date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}
+          </span>
+          <a href="${post.permalink}" class="hover:text-primary">
+            ${post.title}
+          </a>
+        </div>`;
+      })
+      .join(''),
+    icon: 'tabler:calendar',
+    classes: {
+      title: 'text-2xl font-bold text-primary dark:text-blue-300',
+      description: 'mt-2',
+      icon: 'bg-primary dark:bg-blue-700 text-white dark:text-blue-200'
+    }
+  }));
+
+const metadata = {
+  title: 'Archives',
+};
+---
+
+<Layout metadata={metadata}>
+  <HeroText 
+    title="Archives" 
+    subtitle="A timeline of all the posts on this blog."
+  />
+
+  <ContentWrapper>
+    <div class="max-w-3xl mx-auto mb-24">
+      <Timeline items={timelineItems} />
+    </div>
+  </ContentWrapper>
+</Layout> 

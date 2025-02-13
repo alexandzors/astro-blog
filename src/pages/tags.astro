@@ -3,7 +3,7 @@ import Layout from '~/layouts/PageLayout.astro';
 import { findTagsWithOccurrences } from '~/utils/blog';
 import ContentWrapper from '~/components/custom/ContentWrapper.astro';
 import '~/components/CustomStyles.astro';
-
+import HeroText from '~/components/widgets/HeroText.astro';
 const tagsWithOccurrences = await findTagsWithOccurrences();
 const orderedTagsByUsage = Object.entries(tagsWithOccurrences).sort(([,to1], [,to2]) => to2 - to1);
 
@@ -13,27 +13,22 @@ const metadata = {
 ---
 
 <Layout metadata={metadata}>
+  <HeroText 
+    title="Tags" 
+    subtitle="Click a tag below to see all associated posts."
+  />
+
   <ContentWrapper>
-    <div class="space-y-4 h-dvh">
-      <h1 class="text-4xl text-center font-bold font-heading mb-8">Tags</h1>
-      <p class="text-lg text-center text-gray-600 mb-12">Click a tag below to see all associated posts.</p>
+    <div class="max-w-3xl mx-auto mb-24">
       <div class="flex justify-center flex-wrap gap-4">
         {orderedTagsByUsage.map(([tag, count]) => (
           <a
             href={`/tag/${tag}/`}
-            class={`
-              inline-block 
-              rounded-md 
-              px-4 py-2 
-              text-sm 
-              font-medium 
-              transition 
-              duration-200 
-              hover:bg-[var(--aw-color-primary)] 
-              text-[var(--aw-color-text-default)] 
-              hover:text-gray-200 
-              dark:text-[var(--aw-color-text-default)] 
-              dark:hover:bg-[var(--aw-color-accent-50)]`}
+            class="inline-block rounded-lg px-4 py-2 text-sm font-medium
+              border border-gray-200 dark:border-gray-700
+              transition duration-200 
+              hover:bg-primary hover:border-primary hover:text-white hover:shadow-md 
+              dark:hover:bg-primary dark:hover:border-primary"
           >
             {tag} ({count})
           </a>

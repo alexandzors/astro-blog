@@ -6,7 +6,7 @@ import Layout from '~/layouts/PageLayout.astro';
 import BlogList from '~/components/blog/List.astro';
 import Headline from '~/components/blog/Headline.astro';
 import Pagination from '~/components/blog/Pagination.astro';
-
+import BackToTop from '~/components/common/BackToTop.astro';
 export const prerender = true;
 
 export const getStaticPaths = (async ({ paginate }) => {
@@ -33,5 +33,6 @@ const metadata = {
     <Headline>Tag: {tag.title}</Headline>
     <BlogList posts={page.data} />
     <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
+    <BackToTop />
   </section>
 </Layout>
