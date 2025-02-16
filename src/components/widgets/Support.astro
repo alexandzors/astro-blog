@@ -1,0 +1,128 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Item {
+  title: string;
+  description: string;
+  action?: {
+    text: string;
+    href: string;
+  } | undefined;
+  promoCode?: string;
+  star?: boolean | undefined;
+}
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  highlight?: string;
+  items: Array<Item>;
+}
+
+const {
+  title = '',
+  subtitle = '',
+  highlight = '',
+  items = [],
+} = Astro.props;
+---
+<section class="bg-primary-50 dark:bg-slate-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
+    {
+      (title || subtitle || highlight) && (
+        <div class="mb-10 md:mx-auto text-center md:mb-12 max-w-3xl">
+          {highlight && (
+            <p class="text-base text-primary dark:text-blue-200 font-semibold tracking-wide uppercase">
+              {highlight}
+            </p>
+          )}
+          {title && (
+            <h2 class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter mb-4 font-heading">
+              {title}
+            </h2>
+          )}
+          {subtitle && (
+            <p class="max-w-3xl mx-auto sm:text-center text-xl text-muted dark:text-slate-400">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      )
+    }
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-stretch my-12 dark:text-white">
+      {
+        items.map(({ title, description, action, promoCode, star = false }) => (
+          <div class="relative flex flex-col p-6 bg-white dark:bg-slate-900 rounded shadow-lg hover:shadow-md transition dark:border dark:border-slate-800 h-full">
+            {star && (
+              <div class="absolute top-4 right-4 text-yellow-400">
+                <Icon name="tabler:star-filled" class="w-6 h-6" />
+              </div>
+            )}
+            <div class="flex items-center mb-4">
+              <div class="text-xl font-medium">{title}</div>
+            </div>
+            <p class="text-muted dark:text-gray-400 text-md grow">{description}</p>
+            {promoCode && (
+              <div class="flex items-center gap-2 my-4 relative group">
+                <div class="flex-1">
+                  <div class="relative">
+                    <input
+                      type="text"
+                      value={promoCode}
+                      readonly
+                      class="w-full px-4 py-2 bg-gray-100 dark:bg-slate-800 rounded border border-gray-200 dark:border-slate-700 text-sm"
+                    />
+                    <button
+                      class="copy-button absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary dark:text-gray-400"
+                      data-code={promoCode}
+                      aria-label="Copy code"
+                    >
+                      <Icon name="tabler:copy" class="w-5 h-5" />
+                    </button>
+                  </div>
+                  <span class="copy-feedback hidden absolute -top-6 right-0 text-sm text-[--aw-color-green] dark:text-[--aw-color-green]">
+                    Copied!
+                  </span>
+                </div>
+              </div>
+            )}
+            {action && (
+              <div class="flex mt-4">
+                <a
+                  href={action.href}
+                class="inline-flex items-center justify-center w-full px-6 py-2 text-center text-white hover:text-white bg-primary hover:bg-[--aw-color-secondary] dark:bg-primary-700 dark:hover:bg-[--aw-color-secondary] rounded-md shadow-md"
+              >
+                {action?.text}
+                </a>
+              </div>
+            )}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const copyButtons = document.querySelectorAll('.copy-button');
+    
+    copyButtons.forEach(button => {
+      button.addEventListener('click', async () => {
+        const code = button.getAttribute('data-code');
+        const feedback = button.closest('.group')?.querySelector('.copy-feedback');
+        
+        if (code) {
+          await navigator.clipboard.writeText(code);
+          
+          if (feedback) {
+            feedback.classList.remove('hidden');
+            setTimeout(() => {
+              feedback.classList.add('hidden');
+            }, 2000);
+          }
+        }
+      });
+    });
+  });
+</script> 

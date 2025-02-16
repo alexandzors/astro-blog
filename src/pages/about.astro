@@ -3,6 +3,7 @@ import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
 import ContentWrapper from '~/components/custom/ContentWrapper.astro';
 import Support from '~/components/widgets/Support.astro';
+import { Icon } from 'astro-icon/components';
 
 const supportItems = [
   {
@@ -59,10 +60,19 @@ const supportItems = [
   },
   {
     title: 'PayPal',
-    description: 'Direct PayPal Donation',
+    description: 'Support me directly via a PayPal donation.',
     action: {
       text: 'Donate',
       href: 'https://paypal.me/alexandzors'
+    }
+  },
+  {
+    title: 'GitHub Sponsors',
+    description: 'Support me by becoming a GitHub Sponsor!',
+    star: true,
+    action: {
+      text: 'Sponsor',
+      href: 'https://github.com/sponsors/alexandzors'
     }
   },
   {
@@ -84,16 +94,35 @@ const metadata = {
 
   <ContentWrapper>
     <p class="text-lg text-center">
-      This blog follows my adventures in homelabbing. DevOps by day homelabber by night. Oh, I also run an IT consultancy business, <a href="https://alexsguardian.net" target="_blank" rel="noopener noreferrer">Alex’s Guardian</a>, for local end users and small businesses!
+      This blog follows my adventures in homelabbing. DevOps by day homelabber by night. Oh, I also run an IT consultancy business, <a href="https://alexsguardian.net" target="_blank" rel="noopener noreferrer" class="text-primary underline">Alex’s Guardian</a>, for local end users and small businesses!
     </p>
   </ContentWrapper>
 
-  <hr class="my-12 mx-auto w-1/2 border-4 rounded-full border-primary dark:invisible" />
+  <hr class="my-12 mx-auto w-1/4 border-4 rounded-full border-primary dark:invisible" />
 
   <Support
     title="Support the Blog"
-    subtitle="I do not run ads on my blog as they suck. So in order to keep up with the small over head of running the site I have listed a few ways below that you can support me. No obligations!"
+    subtitle="I do not run ads on my blog as they suck. So in order to keep up with the small over head of running the site I have listed a few ways below that you can support me. Zero obligations but every little bit helps!"
     highlight="Support Options"
     items={supportItems}
   />
+
+  <hr class="my-12 mx-auto w-1/4 border-4 rounded-full border-primary dark:invisible" />
+
+  <ContentWrapper>
+    <h2 class="text-2xl font-bold font-heading mb-2">Post Sponsoring</h2>
+    <span class="flex items-center mb-12">
+      <p class="mr-2">
+        I do offer post sponsoring for a small fee. However I do not do paid for reviews. <strong>I will not accept payment to write a positive review.</strong> If you are interested in sponsoring a post please reach out via email and we can discuss further details. <a 
+        href="mailto:blog@alexsguardian.net" class="text-primary underline inline-flex items-center">
+        <Icon name="tabler:mail" class="w-6 h-6 ml-1 hover:text-secondary justify-center" target="_blank" title="Email Me"/>
+      </a>
+      </p>
+    </span>
+
+    <h2 class="text-2xl font-bold font-heading mb-2">GA Disclaimer</h2>
+    <p>
+      I use Google Analytics and Search Console to track site engagement and what posts are popular. I do not serve ads or am part of targeted ad programs on any of my sites. They are only used to track site performance. Running a simple ad block on your browser should stop the script from running. :)
+    </p>
+  </ContentWrapper>
 </Layout>
