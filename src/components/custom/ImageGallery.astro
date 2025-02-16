@@ -1,0 +1,150 @@
+---
+import { Image } from 'astro:assets';
+import WidgetWrapper from '../ui/WidgetWrapper.astro';
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  images: {
+    src: ImageMetadata;
+    alt: string;
+  }[];
+}
+
+const { title, subtitle, images } = Astro.props;
+---
+
+<WidgetWrapper>
+  {
+    (title || subtitle) && (
+      <div class="mb-8 text-center max-w-3xl mx-auto">
+        {title && <h2 class="text-3xl md:text-4xl font-bold leading-tight mb-4">{title}</h2>}
+        {subtitle && <p class="text-muted">{subtitle}</p>}
+      </div>
+    )
+  }
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {
+      images.map((image, index) => (
+        <button 
+          class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+          onclick={`document.getElementById('lightbox-${index}').showModal()`}
+        >
+          <Image
+            src={image.src}
+            alt={image.alt}
+            class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </button>
+        <dialog 
+          id={`lightbox-${index}`} 
+          class="backdrop:bg-black/70 backdrop:backdrop-blur-sm p-0 max-w-[90vw] max-h-[90vh] rounded-lg overflow-hidden bg-transparent"
+          data-index={index}
+          onclick="this.close()"
+        >
+          <div class="relative" onclick="event.stopPropagation()">
+            <Image
+              src={image.src}
+              alt={image.alt}
+              class="w-full h-full object-contain"
+            />
+            
+            {index > 0 && (
+              <button
+                class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-colors z-10"
+                onclick={`event.stopPropagation(); document.getElementById('lightbox-${index}').close(); document.getElementById('lightbox-${index - 1}').showModal();`}
+                aria-label="Previous image"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M15 6l-6 6l6 6" />
+                </svg>
+              </button>
+            )}
+            
+            {index < images.length - 1 && (
+              <button
+                class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-colors z-10"
+                onclick={`event.stopPropagation(); document.getElementById('lightbox-${index}').close(); document.getElementById('lightbox-${index + 1}').showModal();`}
+                aria-label="Next image"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M9 6l6 6l-6 6" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </dialog>
+      ))
+    }
+  </div>
+</WidgetWrapper>
+
+<style>
+  dialog::backdrop {
+    animation: fade-in 0.3s ease-out;
+  }
+  
+  dialog[open] {
+    animation: scale-in 0.3s ease-out;
+  }
+  
+  @keyframes scale-in {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  function navigateLightbox(currentIndex: number, direction: 'prev' | 'next') {
+    const currentDialog = document.getElementById(`lightbox-${currentIndex}`) as HTMLDialogElement;
+    const newIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
+    const newDialog = document.getElementById(`lightbox-${newIndex}`) as HTMLDialogElement;
+    
+    if (currentDialog && newDialog) {
+      currentDialog.close();
+      newDialog.showModal();
+    }
+  }
+
+  // Handle keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    const openDialog = document.querySelector('dialog[open]') as HTMLDialogElement;
+    if (!openDialog) return;
+
+    const currentIndex = parseInt(openDialog.dataset.index || '0');
+    const totalImages = document.querySelectorAll('dialog').length;
+
+    switch (e.key) {
+      case 'Escape':
+        openDialog.close();
+        break;
+      case 'ArrowLeft':
+        if (currentIndex > 0) {
+          navigateLightbox(currentIndex, 'prev');
+        }
+        break;
+      case 'ArrowRight':
+        if (currentIndex < totalImages - 1) {
+          navigateLightbox(currentIndex, 'next');
+        }
+        break;
+    }
+  });
+</script>
