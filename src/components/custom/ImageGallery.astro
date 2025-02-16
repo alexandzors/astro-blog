@@ -42,12 +42,26 @@ const { title, subtitle, images } = Astro.props;
           data-index={index}
           onclick="this.close()"
         >
-          <div class="relative" onclick="event.stopPropagation()">
+          <div class="relative flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <button
+              class="absolute right-2 top-2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-colors z-10"
+              onclick="this.closest('dialog').close()"
+              aria-label="Close lightbox"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M18 6l-12 12" />
+                <path d="M6 6l12 12" />
+              </svg>
+            </button>
             <Image
               src={image.src}
               alt={image.alt}
-              class="w-full h-full object-contain"
+              class="max-w-full max-h-[85vh] object-contain"
             />
+            <p class="text-white bg-black/50 px-4 py-2 rounded-lg text-center text-sm mt-2 mx-auto">
+              {image.alt}
+            </p>
             
             {index > 0 && (
               <button
