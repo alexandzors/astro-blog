@@ -2,7 +2,7 @@
 publishDate: 2022-08-15T16:00:00-04:00
 title: Deploying Jekyll on a Linode VM via GitHub Actions
 excerpt: Setting up automated Jekyll deployments using GitHub Actions
-image: ~/assets/images/banners/gh_actions_header.webp
+image: ~/assets/images/banners/gh_actions_banner.webp
 category: GitHub
 tags:
   - linode
@@ -18,12 +18,16 @@ comments: true
 ---
 import ImgDesc from '~/components/custom/ImgDesc.astro'
 import Aside from '~/components/widgets/Aside.astro'
+import { Image } from 'astro:assets'
+import gh_actions_jekyll from 'gh-actions-jekyll.webp'
 
 In my GitHub Actions, "Getting your feet wet", guide series I went over how to [build a docker container](/posts/2022/06/12/AutoGHActionsDocker/), [automatically updating it](/posts/2022/06/20/AutoGHActionsDiun/) using a app called [Diun](https://crazymax.dev/diun/), [deploying the container update](/posts/2022/06/25/AutoGHDeployLinode/) to a VM in [Linode](https://linode.com), and [creating a releasable binary](/posts/2022/06/30/AutoGHBinary/). All based on the web server I use for my homelab, [Caddy](https://caddyserver.com). This post was not originally planned to be apart of the series but I am including it as an example of a more, "advanced", actions deployment. By default [Jekyll](https://jekyllrb.com/) deploys to [GitHub Pages](https://pages.github.com/) which is really nice if you do not want to spin up your own web server.
 
 For me though I wanted to host it myself. The process for this was mostly straight forward as Jekyll already includes the ability to self host. The diagram below demonstrates the GitHub Actions flow for both the default deployment to pages and my deployment to a Linode VM.
 
-![Actions Workflow](gh-actions-jekyll.webp)
+<div class="flex justify-center">
+  <Image src={gh_actions_jekyll} alt="Actions Workflow" />
+</div>
 <ImgDesc>Workflows for deploying Jekyll via GitHub Actions</ImgDesc>
 
 If you want to use the actions file below you will need the following items completed beforehand.
@@ -225,7 +229,7 @@ blog.alexsguardian.net {
 
 This post is merely an example for the [GitHub Actions](/guides/#github-actions) guide series. I actually use the above workflow to deploy this blog from GitHub, so it does work! If you have any questions, or a suggestion, feel free to reach out via a comment or email!
 
-<Aside type="info">
+<Aside type="note">
 If you are using the Linode Cloud Firewall, check out [my post](/posts/2024/02/25/GHActions-LinodeCLI/) about using Linode CLI to update it during the workflow run!
 </Aside>
 
