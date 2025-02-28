@@ -1,0 +1,103 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import HeroText from '~/components/widgets/HeroText.astro';
+import ContentWrapper from '~/components/custom/ContentWrapper.astro';
+import { Icon } from 'astro-icon/components';
+
+const metadata = {
+  title: 'Guides',
+};
+---
+
+<Layout metadata={metadata}>
+  <HeroText 
+    title="Guides" 
+    subtitle="Collections of posts I've written to help you get started with various tools and services."
+  />
+
+  <ContentWrapper>
+    <div class="space-y-4 max-w-3xl mx-auto ">
+        <details class="[&_svg]:open:-rotate-180 motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade" open>
+            <summary class="text-2xl font-bold font-heading list-none [&::-webkit-details-marker]:hidden flex items-center gap-2 pb-4 underline underline-offset-8 decoration-4 decoration-primary hover:decoration-secondary cursor-pointer">
+                <svg  
+                    xmlns="http://www.w3.org/2000/svg"  
+                    width="24"  
+                    height="24"  
+                    viewBox="0 0 24 24"  
+                    fill="none"  
+                    stroke="currentColor"  
+                    stroke-width="2"  
+                    stroke-linecap="round"  
+                    stroke-linejoin="round"  
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down rotate-0 transform transition-all duration-200"
+                >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M6 9l6 6l6 -6" />
+                </svg>
+                Grafana
+            </summary>
+            <ul class="list-disc list-inside space-y-2 text-sm font-normal ml-6">
+                <li>
+                    <a href="/posts/2022/07/22/grafana-gettingstarted" class="hover:underline hover:text-primary">Grafana - Getting Started</a>
+                </li>
+                <li>
+                    <a href="/posts/2022/09/17/grafana-influxdb" class="hover:underline hover:text-primary">Grafana - Deploying InfluxDB and Telegraf</a>
+                </li>
+
+            </ul>
+            <p class="pl-6 py-4 text-lg font-bold font-heading">Extras</p>
+            <ul class="list-disc list-inside space-y-2 text-sm font-normal ml-6">
+                <li>
+                    <a href="/posts/2022/12/04/monitoringmediavarken" class="hover:underline hover:text-primary">Monitoring Your Media Server with Varken[Dev]</a>
+                </li>
+            </ul>
+        </details>
+
+        <br />
+
+        <details class="[&_svg]:open:-rotate-180 motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
+            <summary class="text-2xl font-bold font-heading list-none [&::-webkit-details-marker]:hidden flex items-center gap-2 pb-4 underline underline-offset-8 decoration-4 decoration-primary hover:decoration-secondary cursor-pointer">
+                <svg  
+                    xmlns="http://www.w3.org/2000/svg"  
+                    width="24"  
+                    height="24"  
+                    viewBox="0 0 24 24"  
+                    fill="none"  
+                    stroke="currentColor"  
+                    stroke-width="2"  
+                    stroke-linecap="round"  
+                    stroke-linejoin="round"  
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down rotate-0 transform transition-all duration-200"
+                >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M6 9l6 6l6 -6" />
+                </svg>
+                GitHub Actions
+            </summary>
+            <ul class="list-disc list-inside space-y-2 text-sm font-normal ml-6">
+                <li>
+                    <a href="/posts/2022/06/12/autoghactionsdocker" class="hover:underline hover:text-primary">GitHub Actions - Automatically Build Docker Containers</a>
+                </li>
+                <li>
+                    <a href="/posts/2022/06/20/autoghactionsdiun" class="hover:underline hover:text-primary">GitHub Actions - Automating your Docker Builds with Diun</a>
+                </li>
+                <li>
+                    <a href="/posts/2022/06/25/autoghdeploylinode" class="hover:underline hover:text-primary">GitHub Actions - Automatically Deploy Docker Updates to Cloud Hosts via SSH</a>
+                </li>
+                <li>
+                    <a href="/posts/2022/06/30/autoghbinary" class="hover:underline hover:text-primary">GitHub Actions - Automatically Build and Release Binaries</a>
+                </li>
+            </ul>
+            <p class="pl-6 py-4 text-lg font-bold font-heading">Extras</p>
+            <ul class="list-disc list-inside space-y-2 text-sm font-normal ml-6">
+                <li>
+                    <a href="/posts/2022/08/15/deployjekylllinode" class="hover:underline hover:text-primary">Deploying Jekyll on a Linode VM via GitHub Actions</a>
+                </li>
+                <li>
+                    <a href="/posts/2024/02/25/ghactions-linodecli" class="hover:underline hover:text-primary">Using Linode CLI to Update Cloud Firewall Rules in GitHub Actions </a>
+                </li>
+            </ul>
+        </details>
+    </div>
+  </ContentWrapper>
+</Layout>

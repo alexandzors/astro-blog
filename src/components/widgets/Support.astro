@@ -26,7 +26,7 @@ const {
   items = [],
 } = Astro.props;
 ---
-<section class="bg-primary-50 dark:bg-slate-800">
+<section class="bg-primary-50 dark:bg-slate-800 motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
     {
       (title || subtitle || highlight) && (

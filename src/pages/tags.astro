@@ -20,7 +20,7 @@ const metadata = {
 
   <ContentWrapper>
     <div class="max-w-3xl mx-auto mb-24">
-      <div class="flex justify-center flex-wrap gap-4">
+      <div class="flex justify-center flex-wrap gap-4 motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
         {orderedTagsByUsage.map(([tag, count]) => (
           <a
             href={`/tag/${tag}/`}

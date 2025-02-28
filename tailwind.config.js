@@ -23,6 +23,16 @@ export default {
         fade: 'fadeInUp 1s both',
       },
 
+      textColor: {
+        'page': 'var(--aw-color-text-page)',
+        'muted': 'var(--aw-color-text-muted)',
+      },
+      backgroundColor: {
+        'page': 'var(--aw-color-bg-page)',
+        'dark': 'var(--aw-color-bg-page-dark)',
+        'light': 'var(--aw-color-bg-page)',
+      },
+
       keyframes: {
         fadeInUp: {
           '0%': { opacity: 0, transform: 'translateY(2rem)' },

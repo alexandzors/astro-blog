@@ -18,7 +18,7 @@ function capitalizeFirstLetter(string: string) {
 }
 
 function formatCategorySlug(slug: string) {
-  return slug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toLowerCase());
+  return slug.toLowerCase().replace(/-/g, ' ');
 }
 
 const blogBase = BLOG_BASE ? `/${BLOG_BASE}` : '';
@@ -31,7 +31,7 @@ const blogBase = BLOG_BASE ? `/${BLOG_BASE}` : '';
   />
 
   <ContentWrapper>
-    <div class="max-w-3xl mx-auto mb-24">
+    <div class="max-w-3xl mx-auto mb-24 motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
       <ul class="space-y-4">
         {Object.entries(categoriesWithOccurrences).map(([categorySlug, count]) => (
           <li>

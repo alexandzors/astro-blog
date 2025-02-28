@@ -1,17 +1,23 @@
 ---
 import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import WidgetWrapper from '../ui/WidgetWrapper.astro';
 
 interface Props {
   title?: string;
   subtitle?: string;
-  images: {
-    src: ImageMetadata;
+  galleryId?: string;
+  items?: {
+    src: ImageMetadata | { src: string };
     alt: string;
+    type: 'image' | 'video';
+    autoplay?: boolean;
+    loop?: boolean;
+    muted?: boolean;
   }[];
 }
 
-const { title, subtitle, images } = Astro.props;
+const { title, subtitle, items = [], galleryId = crypto.randomUUID() } = Astro.props;
 ---
 
 <WidgetWrapper>
@@ -23,28 +29,46 @@ const { title, subtitle, images } = Astro.props;
       </div>
     )
   }
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div class={`grid gap-6 ${
+    items.length < 3 
+      ? 'grid-cols-1 sm:grid-cols-2' 
+      : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+  }`}>
     {
-      images.map((image, index) => (
+      items.map((item, index) => (
         <button 
           class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
-          onclick={`document.getElementById('lightbox-${index}').showModal()`}
+          onclick={`document.getElementById('${galleryId}-${index}').showModal()`}
         >
-          <Image
-            src={image.src}
-            alt={image.alt}
-            class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+          {item.type === 'image' ? (
+            <Image
+              src={item.src}
+              alt={item.alt}
+              class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <div class="w-full h-64 overflow-hidden">
+              <video
+                src={item.src}
+                autoplay={item.autoplay}
+                loop={item.loop}
+                muted={item.muted}
+                playsinline
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+          )}
         </button>
         <dialog 
-          id={`lightbox-${index}`} 
-          class="backdrop:bg-black/70 backdrop:backdrop-blur-sm p-0 max-w-[90vw] max-h-[90vh] rounded-lg overflow-hidden bg-transparent"
+          id={`${galleryId}-${index}`} 
+          class="backdrop:bg-black/70 backdrop:backdrop-blur-sm p-0 max-w-[90vw] max-h-[90vh] rounded-lg overflow-hidden bg-transparent w-full h-[90vh] mx-auto"
           data-index={index}
+          data-gallery-id={galleryId}
           onclick="this.close()"
         >
-          <div class="relative flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+          <div class="relative w-full h-full flex flex-col items-center justify-center" onclick="event.stopPropagation()">
             <button
-              class="absolute right-2 top-2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-colors z-10"
+              class="absolute right-2 top-2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-colors z-20"
               onclick="this.closest('dialog').close()"
               aria-label="Close lightbox"
             >
@@ -54,19 +78,35 @@ const { title, subtitle, images } = Astro.props;
                 <path d="M6 6l12 12" />
               </svg>
             </button>
-            <Image
-              src={image.src}
-              alt={image.alt}
-              class="max-w-full max-h-[85vh] object-contain"
-            />
-            <p class="text-white bg-black/50 px-4 py-2 rounded-lg text-center text-sm mt-2 mx-auto">
-              {image.alt}
+
+            <div class="flex items-center justify-center w-full h-full">
+              {item.type === 'image' ? (
+                <Image
+                  src={item.src}
+                  alt={item.alt}
+                  class="max-w-full max-h-[85vh] object-contain mx-auto"
+                />
+              ) : (
+                <video
+                  src={item.src}
+                  autoplay={item.autoplay}
+                  loop={item.loop}
+                  muted={item.muted}
+                  controls
+                  playsinline
+                  class="max-w-full max-h-[85vh] object-contain mx-auto"
+                />
+              )}
+            </div>
+
+            <p class="text-white bg-black/75 px-4 py-2 rounded-lg text-center text-sm mt-2 mx-auto absolute bottom-4 left-1/2 -translate-x-1/2">
+              {item.alt}
             </p>
             
             {index > 0 && (
               <button
-                class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-colors z-10"
-                onclick={`event.stopPropagation(); document.getElementById('lightbox-${index}').close(); document.getElementById('lightbox-${index - 1}').showModal();`}
+                class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-colors z-20"
+                onclick={`event.stopPropagation(); document.getElementById('${galleryId}-${index}').close(); document.getElementById('${galleryId}-${index - 1}').showModal();`}
                 aria-label="Previous image"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -76,10 +116,10 @@ const { title, subtitle, images } = Astro.props;
               </button>
             )}
             
-            {index < images.length - 1 && (
+            {index < items.length - 1 && (
               <button
-                class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-colors z-10"
-                onclick={`event.stopPropagation(); document.getElementById('lightbox-${index}').close(); document.getElementById('lightbox-${index + 1}').showModal();`}
+                class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-colors z-20"
+                onclick={`event.stopPropagation(); document.getElementById('${galleryId}-${index}').close(); document.getElementById('${galleryId}-${index + 1}').showModal();`}
                 aria-label="Next image"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -127,9 +167,9 @@ const { title, subtitle, images } = Astro.props;
 
 <script>
   function navigateLightbox(currentIndex: number, direction: 'prev' | 'next') {
-    const currentDialog = document.getElementById(`lightbox-${currentIndex}`) as HTMLDialogElement;
+    const currentDialog = document.getElementById(`${galleryId}-${currentIndex}`) as HTMLDialogElement;
     const newIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
-    const newDialog = document.getElementById(`lightbox-${newIndex}`) as HTMLDialogElement;
+    const newDialog = document.getElementById(`${galleryId}-${newIndex}`) as HTMLDialogElement;
     
     if (currentDialog && newDialog) {
       currentDialog.close();
