@@ -11,13 +11,14 @@ tags:
 author: Alexander
 comments: true
 ---
+import { Image } from 'astro:assets'
 import ImgDesc from '~/components/custom/ImgDesc.astro'
 import Aside from '~/components/widgets/Aside.astro'
 import DISCORD_SSH_LOGGING from 'discord-ssh-logging.webp'
 
 So in an effort to get better at log monitoring, especially for SSH, I decided to setup automatic login/logout webhook notifications. Since I already use Discord for gaming, etc. I figured it would be easy to set up a private server for just my homelab and have everything log to it. I ended up using pam.d to invoke a script that handles the webhook.
 
-<Aside type="warning">
+<Aside type="caution">
 You will need a sudo enabled user to update pam.d config as well as creating the script for pam.d
 </Aside>
 

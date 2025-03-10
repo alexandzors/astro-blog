@@ -1,0 +1,7 @@
+Optiplex
+Realtek
+Ubiquiti
+keepalived
+Keepalived
+Ceph
+GlusterFS
