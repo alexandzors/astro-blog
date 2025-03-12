@@ -18,6 +18,7 @@ on:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/dev' && !contains(github.event.head_commit.message, 'noci')
     runs-on: ubuntu-latest
 
     steps:
