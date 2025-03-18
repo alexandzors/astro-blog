@@ -56,17 +56,17 @@ import { UI } from 'astrowind:config';
           container.classList.add('opacity-100');
           
           // Position above footer if scrolled to footer area
-          if (footer) {
-            const footerRect = footer.getBoundingClientRect();
-            const footerVisible = footerRect.top < window.innerHeight;
+          // if (footer) {
+          //   const footerRect = footer.getBoundingClientRect();
+          //   const footerVisible = footerRect.top < window.innerHeight;
             
-            if (footerVisible) {
-              const bottomPosition = window.innerHeight - footerRect.top + 20; // 20px extra space
-              container.style.bottom = `${bottomPosition}px`;
-            } else {
-              container.style.bottom = '20px'; // Default position
-            }
-          }
+          //   if (footerVisible) {
+          //     const bottomPosition = window.innerHeight - footerRect.top + 20; // 20px extra space
+          //     container.style.bottom = `${bottomPosition}px`;
+          //   } else {
+          //     container.style.bottom = '20px'; // Default position
+          //   }
+          // }
         } else {
           container.classList.add('opacity-0', 'invisible');
           container.classList.remove('opacity-100');

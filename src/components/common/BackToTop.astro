@@ -1,9 +1,8 @@
 ---
-const { class: className = 'bottom-6 right-6' } = Astro.props;
 import '~/components/CustomStyles.astro';
 ---
 
-<div id="back-to-top-container" class={`fixed ${className} z-50 group opacity-0 invisible
+<div id="back-to-top-container" class={`sticky bottom-6 right-6 z-50 group opacity-0 invisible
   transition-opacity duration-500`}>
   <button
     class="p-3 rounded-full bg-primary text-white
