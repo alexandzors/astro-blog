@@ -54,8 +54,6 @@ jobs:
       - name: Setup SSH
         id: ssh-setup
         run: |
-          mkdir ~/.ssh
-          touch ~/.ssh/known_hosts
           echo ${{ secrets.LINODEFINGERPRINT }} >> ~/.ssh/known_hosts
 
       - name: Get Linode Script
