@@ -1,5 +1,7 @@
 # Alex's Blog [![](https://img.shields.io/badge/My%20Blog-View%20Now-blue)](https://blog.alexsguardian.net)
 
+![image](src/assets/images/default.webp)
+
 I blog about stuff sometimes.
 
 <br >

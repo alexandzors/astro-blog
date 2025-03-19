@@ -1,12 +1,9 @@
-name: Deploy Dev
+name: Deploy Main
 
 on:
   pull_request:
     branches:
-      - dev
-  push:
-    branches:
-      - dev
+      - main
     paths-ignore:
       - .gitignore
       - README.md
@@ -18,7 +15,7 @@ on:
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/dev' && !contains(github.event.head_commit.message, 'noci')
+    if: github.ref == 'refs/heads/main' && !contains(github.event.pull_request.title, 'noci')
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -32,6 +29,13 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
+
+      - name: Replace Variables
+        run: |
+          sed -i 's/{googleSiteVerificationId}/${{ secrets.GOOGLE_SITE_VERIFICATION_ID }}/g' src/config.yaml
+          sed -i 's/{googleAnalyticsId}/${{ secrets.GOOGLE_ANALYTICS_ID }}/g' src/config.yaml
+          sed -i 's/{giscusRepoId}/${{ secrets.GISCUS_REPO_ID }}/g' src/components/custom/Comments.astro
+          sed -i 's/{giscusCategoryId}/${{ secrets.GISCUS_CATEGORY_ID }}/g' src/components/custom/Comments.astro
 
       - name: Build
         run: npm run build
@@ -74,7 +78,7 @@ jobs:
         with:
           switches: -avr
           path: dist/
-          remote_path: /opt/sites/blog-test/
+          remote_path: /opt/sites/blog/
           remote_host: ${{ secrets.LINODEHOST }}
           remote_port: 22
           remote_user: ${{ secrets.LINODEUSER }}
