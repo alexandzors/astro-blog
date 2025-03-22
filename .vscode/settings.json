@@ -2,7 +2,7 @@
   "css.customData": ["./vscode.tailwind.json"],
   "eslint.validate": ["javascript", "javascriptreact", "astro", "typescript", "typescriptreact"],
   "files.associations": {
-    "*.mdx": "markdown"
+    "*.mdx": "mdx"
   },
   "prettier.documentSelectors": ["**/*.astro"],
   "[astro]": {

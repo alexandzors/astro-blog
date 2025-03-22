@@ -10,7 +10,7 @@ metadata:
   title:
     default: Alex's Blog
     template: "%s"
-  description: "Sometimes I blog about my homelab or other various projects."
+  description: "Sometimes I blog about my homelab or other various things."
   robots:
     index: true
     follow: true
@@ -49,13 +49,13 @@ apps:
 
     category:
       isEnabled: true
-      pathname: 'category' # Category main path /category/some-category, you can change this to "group" (/group/some-category)
+      pathname: 'categories' # Category main path /category/some-category, you can change this to "group" (/group/some-category)
       robots:
         index: true
 
     tag:
       isEnabled: true
-      pathname: 'tag' # Tag main path /tag/some-tag, you can change this to "topics" (/topics/some-category)
+      pathname: 'tags' # Tag main path /tag/some-tag, you can change this to "topics" (/topics/some-category)
       robots:
         index: false
 

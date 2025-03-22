@@ -36,7 +36,7 @@ const blogBase = BLOG_BASE ? `/${BLOG_BASE}` : '';
         {Object.entries(categoriesWithOccurrences).map(([categorySlug, count]) => (
           <li>
             <a
-              href={`${blogBase}/category/${formatCategorySlug(categorySlug)}`}
+              href={`${blogBase}/categories/${formatCategorySlug(categorySlug)}`}
               class="block p-4 rounded-lg border border-gray-200 dark:border-gray-700 
                 transition duration-200 hover:bg-primary hover:border-primary 
                 hover:text-white hover:shadow-md dark:hover:bg-primary dark:hover:border-primary

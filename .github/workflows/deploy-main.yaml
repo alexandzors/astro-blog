@@ -1,0 +1,90 @@
+name: Deploy Main
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - .gitignore
+      - README.md
+      - LICENSE
+      - .vscode
+      - .github
+      - .devcontainer
+  workflow_dispatch:
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main' && !contains(github.event.pull_request.title, 'noci')
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Replace Variables
+        run: |
+          sed -i 's/{googleSiteVerificationId}/${{ secrets.GOOGLE_SITE_VERIFICATION_ID }}/g' src/config.yaml
+          sed -i 's/{googleAnalyticsId}/${{ secrets.GOOGLE_ANALYTICS_ID }}/g' src/config.yaml
+          sed -i 's/{giscusRepoId}/${{ secrets.GISCUS_REPO_ID }}/g' src/components/custom/Comments.astro
+          sed -i 's/{giscusCategoryId}/${{ secrets.GISCUS_CATEGORY_ID }}/g' src/components/custom/Comments.astro
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        uses: chabad360/htmlproofer@master
+        with:
+          directory: "dist/"
+          arguments: --disable-external --checks --allow-hash-href --ignore_urls "/^http:\/\/127.0.0.1/,/^http:\/\/0.0.0.0/,/^http:\/\/localhost/"
+
+      - name: Get Public IP
+        id: ip
+        uses: candidob/get-runner-ip@v1.0.0
+
+      - name: Setup Linode CLI
+        uses: linode/action-linode-cli@v1
+        with:
+          token: "${{ secrets.LINODE_CLI_TOKEN }}"
+
+      - name: Setup SSH
+        id: ssh-setup
+        run: |
+          echo ${{ secrets.LINODEFINGERPRINT }} >> ~/.ssh/known_hosts
+
+      - name: Get Linode Script
+        run: |
+          wget https://raw.githubusercontent.com/alexandzors/utils/refs/heads/main/linode-scripts/linode.sh
+
+      - name: Open Linode Cloud Firewall
+        if: (steps.ssh-setup.outcome  == 'success')
+        env:
+          PUB_IP: "${{ steps.ip.outputs.ipv4 }}/32"
+          HOME_IP: "${{ secrets.HOMEIP }}"
+          LINODE_FW_ID: "${{ secrets.LINODE_FW_ID }}"
+        run: |
+          bash ./linode.sh -a
+
+      - name: Deploy
+        uses: burnett01/rsync-deployments@5.2.1
+        with:
+          switches: -avr
+          path: dist/
+          remote_path: /opt/sites/blog/
+          remote_host: ${{ secrets.LINODEHOST }}
+          remote_port: 22
+          remote_user: ${{ secrets.LINODEUSER }}
+          remote_key: ${{ secrets.LINODESSHKEY }}
+
+      - name: Close Linode Cloud Firewall
+        if: (steps.deploy.outcome  == 'success') || (steps.deploy.outcome  == 'failed' || steps.deploy.outcome  == 'skipped')
+        run: |
+          bash ./linode.sh -d

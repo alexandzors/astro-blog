@@ -19,8 +19,7 @@ on:
 jobs:
   build:
     if: github.ref == 'refs/heads/dev' && !contains(github.event.head_commit.message, 'noci')
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,8 +54,6 @@ jobs:
       - name: Setup SSH
         id: ssh-setup
         run: |
-          mkdir ~/.ssh
-          touch ~/.ssh/known_hosts
           echo ${{ secrets.LINODEFINGERPRINT }} >> ~/.ssh/known_hosts
 
       - name: Get Linode Script
@@ -86,4 +83,4 @@ jobs:
       - name: Close Linode Cloud Firewall
         if: (steps.deploy.outcome  == 'success') || (steps.deploy.outcome  == 'failed' || steps.deploy.outcome  == 'skipped')
         run: |
-          bash .linode.sh -d
+          bash ./linode.sh -d
