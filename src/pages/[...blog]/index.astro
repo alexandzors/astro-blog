@@ -27,7 +27,7 @@ const { post } = Astro.props as Props;
 
 const url = getCanonical(getPermalink(post.permalink, 'post'));
 const image = (await findImage(post.image)) as ImageMetadata | string | undefined;
-const ogImage = (await findImage(post.ogImage)) as ImageMetadata | string | undefined;
+const ogImage = post.ogImage ? (await findImage(post.ogImage)) as ImageMetadata | string | undefined : image;
 
 const metadata = merge(
   {
