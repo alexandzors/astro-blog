@@ -1,6 +1,6 @@
 site:
   name: Alex's Blog
-  site: 'https://blog.alexsguardian.net'
+  site: {blogUrl}
   base: '/'
   trailingSlash: false
 

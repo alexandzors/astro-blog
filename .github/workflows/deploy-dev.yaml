@@ -33,6 +33,10 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Replace Variables
+        run: |
+          sed -i 's/{blogUrl}/${{ secrets.DEVURL }}/g' src/config.yaml
+
       - name: Build
         run: npm run build
 
