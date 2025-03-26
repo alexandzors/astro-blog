@@ -17,7 +17,7 @@ metadata:
   openGraph:
     site_name: Alex's Blog
     images:
-      - url: 'src/assets/images/default.webp'
+      - url: '/assets/images/default.webp'
         width: 1200
         height: 628
     type: blog
