@@ -64,6 +64,10 @@ jobs:
         run: |
           wget https://raw.githubusercontent.com/alexandzors/utils/refs/heads/main/linode-scripts/linode.sh
 
+      - name: Debug
+        run: |
+          cp ./src/config.yaml dist/
+
       - name: Open Linode Cloud Firewall
         if: (steps.ssh-setup.outcome  == 'success')
         env:
