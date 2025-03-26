@@ -4,7 +4,7 @@ site:
   base: '/'
   trailingSlash: false
 
-  googleSiteVerificationId: {googleSiteVerificationId}
+  googleSiteVerificationId: '{googleSiteVerificationId}'
 # Default SEO metadata
 metadata:
   title:
@@ -17,7 +17,7 @@ metadata:
   openGraph:
     site_name: Alex's Blog
     images:
-      - url: '~/assets/images/default.webp'
+      - url: 'src/assets/images/default.webp'
         width: 1200
         height: 628
     type: blog
@@ -65,7 +65,7 @@ apps:
 analytics:
   vendors:
     googleAnalytics:
-      id: {googleAnalyticsId}
+      id: '{googleAnalyticsId}'
 
 ui:
   theme: 'system' # Values: "system" | "light" | "dark" | "light:only" | "dark:only"
