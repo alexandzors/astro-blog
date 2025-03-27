@@ -1,6 +1,6 @@
 site:
   name: Alex's Blog
-  site: '{blogUrl}'
+  site: 'https://blog.alexsguardian.net'
   base: '/'
   trailingSlash: false
 
@@ -8,7 +8,7 @@ site:
 # Default SEO metadata
 metadata:
   title:
-    default: Alex's Blog
+    default: "Alex's Blog"
     template: "%s"
   description: "Sometimes I blog about my homelab or other various things."
   robots:

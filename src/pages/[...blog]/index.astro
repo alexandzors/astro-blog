@@ -30,7 +30,7 @@ const image = (await findImage(post.image)) as ImageMetadata | string | undefine
 
 const metadata = merge(
   {
-    title: post.title,
+    title: post.title + " | Alex's Blog",
     description: post.excerpt,
     robots: {
       index: blogPostRobots?.index,
