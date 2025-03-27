@@ -1,10 +1,10 @@
 site:
   name: Alex's Blog
-  site: {blogUrl}
+  site: '{blogUrl}'
   base: '/'
   trailingSlash: false
 
-  googleSiteVerificationId: {googleSiteVerificationId}
+  googleSiteVerificationId: '{googleSiteVerificationId}'
 # Default SEO metadata
 metadata:
   title:
@@ -65,7 +65,7 @@ apps:
 analytics:
   vendors:
     googleAnalytics:
-      id: {googleAnalyticsId}
+      id: '{googleAnalyticsId}'
 
 ui:
   theme: 'system' # Values: "system" | "light" | "dark" | "light:only" | "dark:only"
