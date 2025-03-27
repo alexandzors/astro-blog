@@ -74,7 +74,7 @@ jobs:
           bash ./linode.sh -a
 
       - name: Deploy
-        uses: burnett01/rsync-deployments@5.2.1
+        uses: burnett01/rsync-deployments@7.0.2
         with:
           switches: -avr
           path: dist/
