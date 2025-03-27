@@ -4,6 +4,11 @@
 
 I blog about stuff sometimes.
 
+## Todo
+
+- Table of contents on posts.
+- Fix giscus comment themes when switching site themes.
+
 <br >
 
 ## Development Commands
