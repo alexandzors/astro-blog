@@ -76,7 +76,7 @@ jobs:
       - name: Deploy
         uses: burnett01/rsync-deployments@7.0.2
         with:
-          switches: -avr
+          switches: -avr --delete
           path: dist/
           remote_path: /opt/sites/blog-test/
           remote_host: ${{ secrets.LINODEHOST }}
