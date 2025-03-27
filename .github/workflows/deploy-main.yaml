@@ -33,7 +33,6 @@ jobs:
       - name: Replace Variables
         run: |
           sed -i 's/{googleSiteVerificationId}/${{ secrets.GOOGLE_SITE_VERIFICATION_ID }}/g' src/config.yaml
-          sed -i 's/{blogUrl}/${{ secrets.BLOGURL }}/g' src/config.yaml
           sed -i 's/{googleAnalyticsId}/${{ secrets.GOOGLE_ANALYTICS_ID }}/g' src/config.yaml
           sed -i 's/{giscusRepoId}/${{ secrets.GISCUS_REPO_ID }}/g' src/components/custom/Comments.astro
           sed -i 's/{giscusCategoryId}/${{ secrets.GISCUS_CATEGORY_ID }}/g' src/components/custom/Comments.astro

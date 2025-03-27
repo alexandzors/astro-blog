@@ -35,7 +35,7 @@ jobs:
 
       - name: Replace Variables
         run: |
-          sed -i 's/{blogUrl}/${{ secrets.DEVURL }}/g' src/config.yaml
+          sed -i 's|https://blog.alexsguardian.net|${{ secrets.DEVURL }}|g' src/config.yaml
 
       - name: Build
         run: npm run build
