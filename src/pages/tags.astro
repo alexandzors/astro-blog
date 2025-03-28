@@ -8,7 +8,7 @@ const tagsWithOccurrences = await findTagsWithOccurrences();
 const orderedTagsByUsage = Object.entries(tagsWithOccurrences).sort(([,to1], [,to2]) => to2 - to1);
 
 const metadata = {
-  title: 'Tags',
+  title: 'Tags | Alex\'s Blog',
 };
 ---
 
@@ -23,7 +23,7 @@ const metadata = {
       <div class="flex justify-center flex-wrap gap-4 motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
         {orderedTagsByUsage.map(([tag, count]) => (
           <a
-            href={`/tags/${tag}`}
+            href={`/tags/${tag.replace(/\s+/g, '-')}`}
             class="group inline-block rounded-lg px-4 py-2 text-sm font-medium
               border border-gray-200 dark:border-gray-700
               transition duration-200 
