@@ -28,7 +28,7 @@ const timelineItems = Object.entries(postsByYear)
           <span class="text-sm text-gray-600 dark:text-gray-400 w-20">
             ${date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}
           </span>
-          <a href="${post.permalink}" class="hover:text-primary">
+          <a href="${import.meta.env.BASE_URL}${post.permalink.startsWith('/') ? post.permalink.substring(1) : post.permalink}" class="hover:text-primary">
             ${post.title}
           </a>
         </div>`;
