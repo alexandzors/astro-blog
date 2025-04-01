@@ -1,0 +1,33 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import SearchField from '~/components/custom/SearchField.astro';
+import ContentWrapper from '~/components/custom/ContentWrapper.astro';
+import Hero from '~/components/widgets/HeroText.astro';
+import { Icon } from 'astro-icon/components';
+
+const metadata = {
+  title: 'Search | Alex\'s Blog',
+};
+---
+
+<Layout metadata={metadata}>
+  <Hero 
+  title="Search" 
+  subtitle="Search for posts on the blog."
+  />
+  <ContentWrapper>
+    <div class="pb-2">
+      <a 
+        href="/" 
+        class="group hover:text-primary hover:dark:text-secondary"
+    >
+      <Icon 
+      name="tabler:chevron-left"
+      class="group-hover:dark:text-secondary group-hover:text-primary w-4 h-4 inline-block -mt-0.5 dark:text-gray-400"
+      />
+      Back
+    </a>
+    </div>
+    <SearchField />
+  </ContentWrapper>
+</Layout>

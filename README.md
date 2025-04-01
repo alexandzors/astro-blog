@@ -8,6 +8,7 @@ I blog about stuff sometimes.
 
 - Table of contents on posts.
 - Fix giscus comment themes when switching site themes.
+- Add image caching to local runner, so workflows do not have to re-optimize existing images.
 
 <br >
 
