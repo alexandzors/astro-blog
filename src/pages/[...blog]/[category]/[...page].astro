@@ -21,7 +21,7 @@ const { page, category } = Astro.props as Props;
 const currentPage = page.currentPage ?? 1;
 
 const metadata = {
-  title: `Category '${category.title}' ${currentPage > 1 ? ` — Page ${currentPage}` : ''}`,
+  title: `Category '${category.title}' ${currentPage > 1 ? ` — Page ${currentPage}` : ''} | Alex's Blog`,
   robots: {
     index: blogCategoryRobots?.index,
     follow: blogCategoryRobots?.follow,
@@ -29,8 +29,8 @@ const metadata = {
 };
 ---
 
-<Layout metadata={metadata}>
-  <section class="px-4 md:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
+<Layout metadata={metadata} data-pagefind-ignore>
+  <section class="px-4 md:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl data-pagefind-ignore">
     <Headline>Category: {category.title}</Headline>
     <BlogList posts={page.data} />
     <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />

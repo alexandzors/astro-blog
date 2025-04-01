@@ -9,6 +9,7 @@ const load = async function () {
       '~/assets/images/**/*.{jpeg,jpg,png,tiff,webp,gif,svg,JPEG,JPG,PNG,TIFF,WEBP,GIF,SVG,WEBM}',
       '~/data/posts/**/**/**/*.{jpeg,jpg,png,tiff,webp,gif,svg,JPEG,JPG,PNG,TIFF,WEBP,GIF,SVG,WEBM,webm}'
     ]);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     // continue regardless of error
   }
@@ -85,14 +86,14 @@ export const adaptOpenGraphImages = async (
           (resolvedImage.startsWith('http://') || resolvedImage.startsWith('https://')) &&
           isUnpicCompatible(resolvedImage)
         ) {
-          _image = (await unpicOptimizer(resolvedImage, [defaultWidth], defaultWidth, defaultHeight, 'jpg'))[0];
+          _image = (await unpicOptimizer(resolvedImage, [defaultWidth], defaultWidth, defaultHeight, 'webp'))[0];
         } else if (resolvedImage) {
           const dimensions =
             typeof resolvedImage !== 'string' && resolvedImage?.width <= defaultWidth
               ? [resolvedImage?.width, resolvedImage?.height]
               : [defaultWidth, defaultHeight];
           _image = (
-            await astroAsseetsOptimizer(resolvedImage, [dimensions[0]], dimensions[0], dimensions[1], 'jpg')
+            await astroAsseetsOptimizer(resolvedImage, [dimensions[0]], dimensions[0], dimensions[1], 'webp')
           )[0];
         }
 

@@ -1,0 +1,146 @@
+---
+import "@pagefind/default-ui/css/ui.css"; 
+import { join } from "node:path";
+interface Props { 
+    readonly id?: string; 
+    readonly className?: string; 
+} 
+
+const { id, className } = Astro.props as Props;
+const bundlePath = join(import.meta.env.BASE_URL, "pagefind/");
+const divProps = { ...(id ? { id }: {}), ...(className ? { class: className } : {}), };
+---
+
+<div {...divProps} data-pagefind-ui data-bundle-path={bundlePath} ></div>
+
+<style is:global>
+  :root {
+    /* Replace these colors with your theme colors */
+    --pagefind-ui-primary: var(--aw-color-primary);
+    --pagefind-ui-text: var(--aw-color-text-default);
+    --pagefind-ui-background: var(--aw-color-bg-page);
+    --pagefind-ui-border: var(--aw-color-border);
+    --pagefind-ui-tag: var(--aw-color-tag);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-image-border-radius: 8px;
+    --pagefind-ui-image-box-ratio: 3 / 2;
+    --pagefind-ui-font: var(--aw-font-sans);
+  }
+  
+  .pagefind-ui__search-input {
+    padding: 0.75rem 1rem;
+    border-radius: var(--pagefind-ui-border-radius);
+    font-family: var(--pagefind-ui-font);
+    border: 2px solid var(--aw-color-primary) !important;
+    font-weight: 200 !important;
+    &:focus, &:focus-visible {
+      outline-offset: -2px;
+      outline: 3px solid var(--aw-color-secondary) !important;
+      border-color: transparent !important;
+    }
+  }
+  
+  .pagefind-ui__result {
+    margin: 1.25rem;
+    border-bottom: 1px solid var(--aw-color-primary) !important;
+    font-weight: 200 !important;
+  }
+  
+  .pagefind-ui__result-title {
+    font-size: 1.25rem;
+    font-weight: 500 !important;
+    text-decoration: underline !important;
+  }
+  
+  .pagefind-ui__message {
+    margin: .5rem 1.25rem;
+    font-family: var(--pagefind-ui-font);
+    font-weight: 200 !important;
+  }
+  .pagefind-ui__filter-panel {
+    display: none !important; 
+  }
+
+  .pagefind-ui__button {
+    background-color: var(--pagefind-ui-primary) !important;
+    color: white !important;
+    border: 1px solid var(--pagefind-ui-border) !important;
+    border-radius: var(--pagefind-ui-border-radius) !important;
+    padding: 0.5rem 1rem !important;
+    font-family: var(--pagefind-ui-font) !important;
+    &:hover {
+      background-color: var(--aw-color-secondary) !important;
+    }
+  }
+</style>
+
+<script>
+  import { PagefindUI } from "@pagefind/default-ui";
+  
+  // Initialize the search UI
+  function initializeSearch() {
+    const allSelector = "[data-pagefind-ui]";
+    for (const el of document.querySelectorAll(allSelector)) {
+      // Check if this element has already been initialized
+      if (el.dataset.initialized === "true") continue;
+      
+      const elSelector = [
+        ...(el.id ? [`#${el.id}`] : []),
+        ...[...el.classList.values()].map((c) => `.${c}`),
+        allSelector,
+      ].join("");
+      const bundlePath = el.getAttribute("data-bundle-path");
+      new PagefindUI({
+        element: elSelector,
+        bundlePath,
+        showImages: false,
+        debounceTimeoutMs: 300,
+        resetstyles: false,
+        autofocus: true,
+        showEmptyFilters: false,
+        translations: {
+          placeholder: "Search for posts..",
+          zero_results: "No posts found for '[SEARCH_TERM]'"
+        }
+      });
+
+      const input = el.querySelector<HTMLInputElement>(`input[type="text"]`);
+      input?.focus();
+
+      // Check if the current URL has any query params
+      const url = new URL(window.location.href);
+      const params = new URLSearchParams(url.search);
+      const query = params.get("q");
+
+      // If query exists on page load
+      if (query && input) {
+        input.value = query;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+
+      // Add Listener to update the URL when the input changes
+      input?.addEventListener("input", (e) => {
+        const input = e.target as HTMLInputElement;
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+        params.set("q", input.value);
+        window.history.replaceState({}, "", `${url.pathname}?${params}`);
+      });
+      
+      // Mark as initialized
+      el.dataset.initialized = "true";
+    }
+  }
+
+  // Run on initial page load
+  window.addEventListener("DOMContentLoaded", initializeSearch);
+  
+  // Run when Astro's view transitions completes
+  document.addEventListener("astro:page-load", initializeSearch);
+  
+  // Also run when the document is fully loaded (backup)
+  if (document.readyState === "complete") {
+    initializeSearch();
+  }
+</script>

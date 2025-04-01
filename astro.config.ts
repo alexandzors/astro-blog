@@ -16,6 +16,8 @@ import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
 
 import astrowind from './vendor/integration';
 
+import pagefind from 'astro-pagefind';
+
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
 import a11yEmoji from '@fec/remark-a11y-emoji';
 import remarkDirective from 'remark-directive';
@@ -81,6 +83,8 @@ export default defineConfig({
     astrowind({
       config: './src/config.yaml',
     }),
+
+    pagefind()
   ],
 
   image: {
