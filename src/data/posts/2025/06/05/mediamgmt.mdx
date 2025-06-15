@@ -1,0 +1,49 @@
+---
+publishDate: 2025-06-05T14:00:00-04:00
+title: Managing Your Media Library Services With nzb360
+excerpt: How to setup, manage, and monitor your media server with the nzb360 app.
+image: ~/assets/images/banners/rebuild_banner.webp
+category: Homelab
+tags:
+  - docker
+  - homelab
+  - plex
+  - jellyfin
+comments: true
+author: Alexander
+---
+import Aside from 'src/components/widgets/Aside.astro';
+import ImgDesc from 'src/components/custom/ImgDesc.astro';
+import WebmVideo from 'src/components/custom/WebmVideo.astro';
+import SkipAnchor from 'src/components/custom/SkipAnchor.astro';
+import FTCDisclaimer from 'src/components/custom/FTCDisclaimer.astro';
+import { Image } from 'astro:assets';
+import ImageGallery from 'src/components/custom/ImageGallery.astro';
+
+Do you have a <a href="https://plex.tv" target="_blank">Plex</a> or <a href="https://jellyfin.org/" target="_blank">Jellyfin</a> server? Do you use <a href="https://sonarr.tv" target="_blank">Sonarr</a>, <a href="https://radarr.video/" target="_blank">Radarr</a>, or <a href="https://lidarr.audio/" target="_blank">Lidarr</a> to manage your media library? If so, <a href="https://nzb360.com/" target="_blank">nzb360</a> is a powerful app, for Android, that can help you manage all of these services from one place. The best part? It now supports<a href="https://en.wikipedia.org/wiki/Mobile_deep_linking" target="_blank"> deep linking</a>!
+
+> Arguably its one of my most used apps on my phone, and it might be yours as well after reading this post! :wink:
+
+## Pre-Requisites
+
+To follow along with this post, you will need the following services already running:
+- A Plex or Jellyfin server
+- Sonarr, Radarr, Lidarr, etc.
+
+There are countless blog posts and guides out there that already walk you through setting these up. Should be a fairly quick Google search otherwise you can check out the respective wiki's below.
+
+- [*arr apps Wiki](https://wiki.servarr.com/)
+- [Plex Wiki](https://support.plex.tv/articles/200264746-quick-start-step-by-step-guides/)
+- [Jellyfin Wiki](https://jellyfin.org/docs/general/installation/)
+
+### Optional
+
+- A reverse proxy such as <a href="https://caddyserver.com/" target="_blank">Caddy</a> or <a href="https://nginx.org/en/" target="_blank">Nginx</a> to access your services from outside your home network via HTTPS.
+- A RAS/VPN such as <a href="https://www.cloudflare.com/zero-trust/products/access/" target="_blank">Cloudflare Access</a>, <a href="https://tailscale.com/" target="_blank">Tailscale</a>, or <a href="https://www.wireguard.com/" target="_blank">Wireguard</a> to access your services from outside your home network.
+- A nfty.sh instance or account set up at <a href="https://nfty.sh" target="_blank">nfty.sh</a> to receive alerts with deep linking. See my post on ntfy <a href="/posts/2023/09/12/selfhosting-ntfy" target="_blank">here</a>.
+
+## Installing nzb360
+
+Let me first state that nzb360 is not free. It has a 'free' version, but it is limited in functionality. If you actually want to remotely manage your media services you'll need to upgrade to the 'Pro' version in the app. In my opinion, the $11.99 USD price tag is well worth it for the features you get access to. It's also a cool thing to support the developer!
+
+nzb360 is available on the Google Play Store, and you can find it [here](https://play.google.com/store/apps/details?id=com.kevinforeman.nzb360&pcampaignid=web_share).
