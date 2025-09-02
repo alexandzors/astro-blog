@@ -66,6 +66,18 @@ jobs:
           remote_user: ${{ secrets.LINODEUSER }}
           remote_key: ${{ secrets.LINODESSHKEY }}
 
+      - name: Install GitHub CLI
+        run: |
+          # Check if gh is already installed
+          if ! command -v gh &> /dev/null; then
+            # Install GitHub CLI for Ubuntu/Debian
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update
+            sudo apt install gh -y
+          fi
+
       - name: Check if images cache exists for current branch
         id: actions-cache-list
         env:
