@@ -30,16 +30,12 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Cache Astro Images
-        uses: actions/cache@v4
+      - name: Restore Astro Images
+        uses: actions/cache/restore@v4
+        id: cache-images-restore
         with:
-          path: |
-            .astro/assets
-            dist/_astro
-            node_modules/.astro
-          key: astro-images-${{ hashFiles('src/data/posts/**/*.{jpg,jpeg,png,webp,gif,svg}', 'src/assets/images/**/*.{jpg,jpeg,png,webp,gif,svg}') }}
-          restore-keys: |
-            astro-images-
+          path: cache
+          key: astro-images-dev
 
       - name: Install Dependencies
         run: npm ci
@@ -69,3 +65,9 @@ jobs:
           remote_port: 22
           remote_user: ${{ secrets.LINODEUSER }}
           remote_key: ${{ secrets.LINODESSHKEY }}
+
+      - name: Cache Astro Images
+        uses: actions/cache/save@v4
+        with:
+          path: cache
+          key: ${{ steps.cache-images-restore.outputs.cache-primary-key }}

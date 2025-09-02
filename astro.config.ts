@@ -32,8 +32,10 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 export default defineConfig({
   output: 'static',
 
+  cacheDir: './cache',
+
   integrations: [
-    sitemap(), 
+    sitemap(),
 
     icon({
       include: {
@@ -50,7 +52,7 @@ export default defineConfig({
           'database',
         ],
       },
-    }), 
+    }),
 
     astroExpressiveCode({
       themes: ['andromeeda'],
