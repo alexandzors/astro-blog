@@ -70,7 +70,7 @@ jobs:
         id: actions-cache-list
         env:
           GH_TOKEN: ${{ github.token }}
-        run: echo "RESULT=$(gh cache list --branch ${{ github.ref }} --key Images-)" >> $GITHUB_OUTPUT
+        run: echo "RESULT=$(gh cache list --branch ${{ github.ref }} --key astro-images-)" >> $GITHUB_OUTPUT
       - name: Clear existing images cache
         if: ${{ steps.actions-cache-list.outputs.RESULT != '' }}
         env:
