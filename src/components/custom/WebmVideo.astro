@@ -1,5 +1,5 @@
 ---
-const { src, width = 640, height = 360, autoplay = false, loop = false, muted = false } =
+const { src, width = 640, height = 360, autoplay = false, loop = false, muted = false, style } =
   Astro.props;
 ---
 <video
@@ -8,7 +8,8 @@ const { src, width = 640, height = 360, autoplay = false, loop = false, muted = 
   {...(autoplay ? { autoplay: true } : {})}
   {...(loop ? { loop: true } : {})}
   {...(muted ? { muted: true } : {})}
+  class={style}
 >
   <source src={src} type="video/webm">
-  Your browser does not support the video tag.
+  Your browser does not support webm.
 </video>

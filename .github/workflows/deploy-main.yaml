@@ -1,18 +1,24 @@
 name: Deploy Main
 
 on:
-  pull_request:
+  push:
     branches:
       - main
     paths-ignore:
       - .gitignore
-      - .vscode
-      - .devcontainer
+      - README.md
+      - LICENSE.md
+      - .vscode/**
+      - .devcontainer/**
   workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/main' && !contains(github.event.pull_request.title, 'noci')
+    if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'noci')
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -23,6 +29,13 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      - name: Restore Astro Images
+        uses: actions/cache/restore@v4
+        id: cache-images-restore
+        with:
+          path: cache
+          key: astro-images-${{ runner.os }}
 
       - name: Install Dependencies
         run: npm ci
@@ -75,3 +88,23 @@ jobs:
             ${{ secrets.BLOGURL }}/about/
             ${{ secrets.BLOGURL }}/rss.xml
             ${{ secrets.BLOGURL }}/pagefind/
+
+      # Thanks https://danielwulff.dev/blog/cache-astro-images-across-github-action-runs/
+
+      - name: Check if images cache exists for current branch
+        id: actions-cache-list
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "RESULT=$(gh cache list --ref ${{ github.ref }} --key astro-images-)" >> $GITHUB_OUTPUT
+
+      - name: Clear existing images cache
+        if: ${{ steps.actions-cache-list.outputs.RESULT != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh cache delete ${{ steps.cache-images-restore.outputs.cache-primary-key }}
+
+      - name: Cache Astro Images
+        uses: actions/cache/save@v4
+        with:
+          path: cache
+          key: ${{ steps.cache-images-restore.outputs.cache-primary-key }}

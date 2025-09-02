@@ -1,0 +1,43 @@
+---
+// src/components/custom/GooglePlayCard.astro
+import { Image, type ImageMetadata } from 'astro:assets';
+
+export interface Props {
+  appName: string;
+  developer: string;
+  storeUrl: string;
+  icon: ImageMetadata;
+  iconAlt: string;
+}
+
+const { appName, developer, storeUrl, icon, iconAlt } = Astro.props;
+---
+
+<div class="my-6">
+  <a
+    href={storeUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="flex items-center gap-4 p-4 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out no-underline"
+  >
+    <div class="flex-shrink-0">
+      <Image src={icon} alt={iconAlt} width="64" height="64" class="rounded-lg" />
+    </div>
+    <div class="flex-grow">
+      <div class="font-bold text-lg text-gray-900 dark:text-gray-100">{appName}</div>
+      <div class="text-sm text-gray-600 dark:text-gray-400">{developer}</div>
+      <div class="text-sm text-blue-600 dark:text-blue-400 mt-1">View on Google Play Store</div>
+    </div>
+    <div class="flex-shrink-0">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-6 w-6 text-gray-500 dark:text-gray-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+    </div>
+  </a>
+</div>

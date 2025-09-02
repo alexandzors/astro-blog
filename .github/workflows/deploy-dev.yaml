@@ -10,11 +10,15 @@ on:
     paths-ignore:
       - .gitignore
       - README.md
-      - LICENSE
-      - .vscode
-      - .github
-      - .devcontainer
+      - LICENSE.md
+      - .vscode/**
+      - .github/**
+      - .devcontainer/**
   workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
 
 jobs:
   build:
@@ -29,6 +33,13 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      - name: Restore Astro Images
+        uses: actions/cache/restore@v4
+        id: cache-images-restore
+        with:
+          path: cache
+          key: astro-images-${{ runner.os }}
 
       - name: Install Dependencies
         run: npm ci
@@ -58,3 +69,21 @@ jobs:
           remote_port: 22
           remote_user: ${{ secrets.LINODEUSER }}
           remote_key: ${{ secrets.LINODESSHKEY }}
+
+      - name: Check if images cache exists for current branch
+        id: actions-cache-list
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "RESULT=$(gh cache list --ref ${{ github.ref }} --key astro-images-)" >> $GITHUB_OUTPUT
+
+      - name: Clear existing images cache
+        if: ${{ steps.actions-cache-list.outputs.RESULT != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh cache delete ${{ steps.cache-images-restore.outputs.cache-primary-key }}
+
+      - name: Cache Astro Images
+        uses: actions/cache/save@v4
+        with:
+          path: cache
+          key: ${{ steps.cache-images-restore.outputs.cache-primary-key }}
