@@ -83,6 +83,22 @@ jobs:
             ${{ secrets.BLOGURL }}/rss.xml
             ${{ secrets.BLOGURL }}/pagefind/
 
+      # Thanks https://danielwulff.dev/blog/cache-astro-images-across-github-action-runs/
+      - name: Install gh actions-cache extension
+        run: gh extension install actions/gh-actions-cache
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Check if images cache exists for current branch
+        id: actions-cache-list
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "RESULT=$(gh actions-cache list --branch ${{ github.ref }} --key Images-)" >> $GITHUB_OUTPUT
+      - name: Clear existing images cache
+        if: ${{ steps.actions-cache-list.outputs.RESULT != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh actions-cache delete ${{ steps.cache-images-restore.outputs.cache-primary-key }} --branch ${{ github.ref }} --confirm
+
       - name: Cache Astro Images
         uses: actions/cache/save@v4
         with:
