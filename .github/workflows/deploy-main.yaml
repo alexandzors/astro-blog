@@ -1,13 +1,15 @@
 name: Deploy Main
 
 on:
-  pull_request:
+  push:
     branches:
       - main
     paths-ignore:
       - .gitignore
-      - .vscode
-      - .devcontainer
+      - README.md
+      - LICENSE.md
+      - .vscode/**
+      - .devcontainer/**
   workflow_dispatch:
 
 permissions:
@@ -16,7 +18,7 @@ permissions:
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/main' && !contains(github.event.pull_request.title, 'noci')
+    if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'noci')
     runs-on: self-hosted
     steps:
       - name: Checkout
