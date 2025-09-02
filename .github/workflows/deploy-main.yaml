@@ -10,6 +10,10 @@ on:
       - .devcontainer
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   build:
     if: github.ref == 'refs/heads/main' && !contains(github.event.pull_request.title, 'noci')
@@ -95,7 +99,7 @@ jobs:
         if: ${{ steps.actions-cache-list.outputs.RESULT != '' }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh cache delete ${{ steps.cache-images-restore.outputs.cache-primary-key }} --confirm
+        run: gh cache delete ${{ steps.cache-images-restore.outputs.cache-primary-key }}
 
       - name: Cache Astro Images
         uses: actions/cache/save@v4
