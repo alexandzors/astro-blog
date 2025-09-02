@@ -11,9 +11,9 @@ on:
       - .gitignore
       - README.md
       - LICENSE
-      - .vscode
-      - .github
-      - .devcontainer
+      - .vscode/
+      - .github/
+      - .devcontainer/
   workflow_dispatch:
 
 jobs:
