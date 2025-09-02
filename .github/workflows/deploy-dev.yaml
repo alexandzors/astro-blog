@@ -4,16 +4,23 @@ on:
   pull_request:
     branches:
       - dev
+    paths-ignore:
+      - .gitignore
+      - README.md
+      - LICENSE.md
+      - .vscode/**
+      - .github/**
+      - .devcontainer/**
   push:
     branches:
       - dev
     paths-ignore:
       - .gitignore
       - README.md
-      - LICENSE
-      - .vscode/
-      - .github/
-      - .devcontainer/
+      - LICENSE.md
+      - .vscode/**
+      - .github/**
+      - .devcontainer/**
   workflow_dispatch:
 
 jobs:

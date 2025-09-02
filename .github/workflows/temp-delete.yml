@@ -1,7 +1,9 @@
 name: Temp Action
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - dev
 
 jobs:
   no-u:
