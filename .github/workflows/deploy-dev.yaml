@@ -71,11 +71,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: echo "RESULT=$(gh cache list --ref ${{ github.ref }} --key astro-images-)" >> $GITHUB_OUTPUT
+
       - name: Clear existing images cache
         if: ${{ steps.actions-cache-list.outputs.RESULT != '' }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh cache delete ${{ steps.cache-images-restore.outputs.cache-primary-key }} --branch ${{ github.ref }} --confirm
+        run: gh cache delete ${{ steps.cache-images-restore.outputs.cache-primary-key }} --ref ${{ github.ref }} --confirm
 
       - name: Cache Astro Images
         uses: actions/cache/save@v4
