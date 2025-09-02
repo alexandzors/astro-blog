@@ -5,6 +5,10 @@ on:
     branches:
       - dev
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   no-u:
     runs-on: self-hosted
