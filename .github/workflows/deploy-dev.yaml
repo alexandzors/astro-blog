@@ -39,7 +39,7 @@ jobs:
         id: cache-images-restore
         with:
           path: cache
-          key: astro-images-${{ runner.os }}
+          key: astro-images-dev-${{ runner.os }}
 
       - name: Install Dependencies
         run: npm ci
@@ -74,7 +74,7 @@ jobs:
         id: actions-cache-list
         env:
           GH_TOKEN: ${{ github.token }}
-        run: echo "RESULT=$(gh cache list --ref ${{ github.ref }} --key astro-images-)" >> $GITHUB_OUTPUT
+        run: echo "RESULT=$(gh cache list --ref ${{ github.ref }} --key astro-images-dev-)" >> $GITHUB_OUTPUT
 
       - name: Clear existing images cache
         if: ${{ steps.actions-cache-list.outputs.RESULT != '' }}
