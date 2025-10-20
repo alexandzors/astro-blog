@@ -22,10 +22,10 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Nodejs
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -59,7 +59,7 @@ jobs:
           arguments: --disable-external --checks --allow-hash-href --ignore_urls "/^http:\/\/127.0.0.1/,/^http:\/\/0.0.0.0/,/^http:\/\/localhost/"
 
       - name: Deploy
-        uses: burnett01/rsync-deployments@7.0.2
+        uses: burnett01/rsync-deployments@7.1.0
         with:
           switches: -avr
           path: dist/

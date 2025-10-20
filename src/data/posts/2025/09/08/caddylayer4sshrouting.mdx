@@ -39,7 +39,7 @@ Now trying to mimic GitHub led me down the rabbit hole with Caddy's layer 4 modu
 By default, Caddy does not include the layer 4 routing module. It has to be built with it. This can be done using the <a href="https://github.com/caddyserver/xcaddy" target="_blank">xcaddy tool</a> with the following command:
 
 ```shell
-xcaddy build --with github.com/molt/caddy-l4
+xcaddy build --with github.com/mholt/caddy-l4
 ```
 
 This command fetches the Caddy source code and compiles it with the Layer 4 routing module. The resulting binary can then be used in place of a standard Caddy binary. If you can't build locally, you can use the Caddy <a href="https://caddyserver.com/download" target="_blank">download page</a> to generate a pre-built binary with the Layer 4 module instead.
